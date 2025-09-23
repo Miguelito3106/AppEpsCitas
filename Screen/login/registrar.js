@@ -1,22 +1,73 @@
 import { useState } from "react";
-import {  Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator, View } from "react-native";
+import { registerUser } from "../../Src/Services/AuthService";
 
 export default function Register({ navigation }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false); // ✅ Estado para controlar loading
 
-  const handleRegister = () => {
-    if (!name || !email || !password || !confirmPassword) {
-      alert("Por favor completa todos los campos");
-      return;
+  const handleRegister = async () => {
+    try {
+      setLoading(true);
+
+      // Validar que todos los campos estén completos
+      if (!name || !email || !password || !confirmPassword) {
+        Alert.alert("Error", "Por favor, completa todos los campos");
+        return;
+      }
+
+      // Validar que las contraseñas coincidan
+      if (password !== confirmPassword) {
+        Alert.alert("Error", "Las contraseñas no coinciden");
+        return;
+      }
+
+      // Validar formato de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        Alert.alert("Error", "Por favor, ingresa un email válido");
+        return;
+      }
+
+      // Validar longitud de contraseña
+      if (password.length < 6) {
+        Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres");
+        return;
+      }
+
+      const result = await registerUser(name, email, password);
+
+      if (result.success) {
+        Alert.alert("Éxito", "Usuario registrado correctamente", [
+          {
+            text: "OK",
+            onPress: () => {
+              console.log("Registro exitoso, redirigiendo al login...");
+              // Limpiar formulario
+              setName("");
+              setEmail("");
+              setPassword("");
+              setConfirmPassword("");
+              // Redirigir al login
+              navigation.navigate("Login");
+            },
+          },
+        ]);
+      } else {
+        Alert.alert(
+          "Error de registro",
+          result.message || "Ocurrió un error al registrar el usuario"
+        );
+      }
+    } catch (error) {
+      console.error("Error inesperado en registro:", error);
+      Alert.alert("Error", "Ocurrió un error inesperado al registrar el usuario.");
+    } finally {
+      setLoading(false);
     }
-    if (password !== confirmPassword) {
-      alert("Las contraseñas no coinciden");
-      return;
-    }
-    alert(`Usuario registrado: ${name}`);
   };
 
   return (
@@ -58,8 +109,16 @@ export default function Register({ navigation }) {
         onChangeText={setConfirmPassword}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Registrarse</Text>
+      <TouchableOpacity
+        style={[styles.button, loading && { opacity: 0.7 }]}
+        onPress={handleRegister}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Registrarse</Text>
+        )}
       </TouchableOpacity>
 
       <Text style={styles.loginText}>
@@ -113,4 +172,3 @@ const styles = StyleSheet.create({
     color: "#555",
   },
 });
-

@@ -1,18 +1,39 @@
 import { useState } from "react";
-import {  Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import {Text,TextInput,TouchableOpacity,StyleSheet,ScrollView,Alert,} from "react-native";
+import { loginUser } from "../../Src/Services/AuthService";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    if (email === "" || password === "") {
-      alert("Por favor completa todos los campos");
-      return;
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+      const result = await loginUser(email, password);
+
+      if (result.success) {
+        Alert.alert("Éxito", "Inicio de sesión exitoso", [
+          {
+            text: "OK",
+            onPress: () => {
+              console.log("Login exitoso, redirigiendo automáticamente...");
+              navigation.navigate("Inicio"); 
+            },
+          },
+        ]);
+      } else {
+        Alert.alert(
+          "Error de login",
+          result.message || "Ocurrió un error al iniciar sesión"
+        );
+      }
+    } catch (error) {
+      console.error("Error inesperado en login:", error);
+      Alert.alert("Error", "Ocurrió un error inesperado al iniciar sesión.");
+    } finally {
+      setLoading(false);
     }
-    
-    alert(`Bienvenido, ${email}`);
-    navigation.navigate("inicio");
   };
 
   return (
@@ -41,13 +62,22 @@ export default function Login({ navigation }) {
         onChangeText={setPassword}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Ingresar</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleLogin}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "Cargando..." : "Iniciar sesión"}
+        </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Registro")}>
+      <TouchableOpacity
+        style={{ marginTop: 10 }}
+        onPress={() => navigation.navigate("Register")}
+      >
         <Text style={styles.registerText}>
-          ¿No tienes cuenta? <Text style={{ color: "#007BFF", fontWeight: "bold" }}>Regístrate</Text>
+          ¿No tienes cuenta? Regístrate
         </Text>
       </TouchableOpacity>
     </ScrollView>
