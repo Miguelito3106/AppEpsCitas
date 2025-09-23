@@ -16,10 +16,7 @@ export default function Inicio({ navigation }) {
       "Cerrar Sesión",
       "¿Estás seguro de que quieres cerrar sesión?",
       [
-        {
-          text: "Cancelar",
-          style: "cancel"
-        },
+        { text: "Cancelar", style: "cancel" },
         {
           text: "Cerrar Sesión",
           onPress: async () => {
@@ -35,30 +32,26 @@ export default function Inicio({ navigation }) {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+    <ScrollView style={{ flex: 1, backgroundColor: "#f0f9ff" }}>
       <View style={styles.container}>
         <Text style={styles.titulo}>Panel Principal</Text>
-        
-        <Text style={styles.subtitulo}>
-          Bienvenido al sistema de gestión médica
-        </Text>
+        <Text style={styles.subtitulo}>Bienvenido al sistema de gestión médica</Text>
 
         {opciones.map((item, index) => (
           <TouchableOpacity
             key={index}
             style={styles.card}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate(item.ruta)}
           >
-            <MaterialIcons name={item.icono} size={28} color="#fff" style={styles.icono} />
+            <View style={styles.iconWrapper}>
+              <MaterialIcons name={item.icono} size={28} color="#0ea5e9" />
+            </View>
             <Text style={styles.cardTexto}>{item.titulo}</Text>
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={handleLogout}
-        >
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <MaterialIcons name="logout" size={24} color="#fff" />
           <Text style={styles.logoutText}>Cerrar Sesión</Text>
         </TouchableOpacity>
@@ -74,60 +67,64 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   titulo: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: "bold",
-    marginBottom: 10,
-    color: "#1e293b",
+    marginBottom: 8,
+    color: "#0f172a",
     textAlign: "center",
   },
   subtitulo: {
     fontSize: 16,
-    color: "#64748b",
-    marginBottom: 30,
+    color: "#475569",
+    marginBottom: 25,
     textAlign: "center",
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#2563eb",
+    backgroundColor: "rgba(255,255,255,0.9)",
     paddingVertical: 18,
-    paddingHorizontal: 25,
-    borderRadius: 15,
-    marginVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginVertical: 10,
     width: "100%",
-    // Usar elevation para Android y shadow props corregidas para iOS/web
-    elevation: 5,
+    elevation: 4,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
     shadowRadius: 6,
   },
-  icono: {
+  iconWrapper: {
+    backgroundColor: "#e0f2fe",
+    padding: 12,
+    borderRadius: 12,
     marginRight: 15,
   },
   cardTexto: {
-    color: "#fff",
+    color: "#0f172a",
     fontSize: 18,
     fontWeight: "600",
   },
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#dc2626",
-    paddingVertical: 12,
+    backgroundColor: "linear-gradient(90deg, #0ea5e9, #2563eb)", // gradiente
+    paddingVertical: 14,
     paddingHorizontal: 20,
-    borderRadius: 10,
-    marginTop: 30,
+    borderRadius: 15,
+    marginTop: 40,
     width: "100%",
     justifyContent: "center",
+    elevation: 6,
+    shadowColor: "#0ea5e9",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
   },
   logoutText: {
     color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 17,
+    fontWeight: "700",
     marginLeft: 10,
   },
 });
