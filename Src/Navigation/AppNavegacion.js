@@ -5,6 +5,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState, useRef } from "react"
 import { AppState, View, ActivityIndicator } from "react-native"
 
+// Componente Text seguro para web
+const SafeText = ({ children, style }) => {
+  return React.createElement('span', { 
+    style: {
+      fontFamily: 'System',
+      fontSize: 14,
+      color: '#666',
+      ...style
+    }
+  }, children);
+};
+
 export default function AppNavegacion() {
   const [isLoading, setIsLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
@@ -12,35 +24,22 @@ export default function AppNavegacion() {
 
   const loadToken = async () => {
     try {
-      // Para DEBUG: Limpiar el token al cargar (opcional)
+      // Limpiar token para testing (descomenta si necesitas)
       // await AsyncStorage.removeItem("userToken");
       
       const token = await AsyncStorage.getItem("userToken");
-      console.log("🔑 Token cargado:", token ? "SÍ existe" : "NO existe");
+      console.log("Token cargado:", token);
       setUserToken(token);
     } catch (error) {
-      console.error("❌ Error al cargar el token:", error);
+      console.error("Error al cargar el token:", error);
       setUserToken(null);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Limpiar token al iniciar (para testing)
-  const clearTokenOnStart = async () => {
-    try {
-      await AsyncStorage.removeItem("userToken");
-      console.log("🗑️ Token limpiado al iniciar");
-    } catch (error) {
-      console.error("Error al limpiar token:", error);
-    }
-  };
-
   // Se ejecuta cuando el componente se monta
   useEffect(() => {
-    // Opcional: Descomenta la siguiente línea para limpiar el token al iniciar
-    // clearTokenOnStart();
-    
     loadToken();
   }, []);
 
@@ -48,7 +47,7 @@ export default function AppNavegacion() {
   useEffect(() => {
     const handleAppStateChange = (nextAppState) => {
       if (appState.current.match(/inactive|background/) && nextAppState === "active") {
-        console.log("🔄 La aplicación ha vuelto al primer plano, verificando token...");
+        console.log("La aplicación ha vuelto al primer plano, verificando token...");
         loadToken();
       }
       appState.current = nextAppState;
@@ -62,12 +61,13 @@ export default function AppNavegacion() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#007BFF" />
-        <Text style={{ marginTop: 10, color: '#666' }}>Cargando...</Text>
+        {/* Usar SafeText en lugar de Text para evitar errores en web */}
+        <SafeText style={{ marginTop: 10 }}>Cargando...</SafeText>
       </View>
     );
   }
 
-  console.log("🎯 Estado actual - Mostrando:", userToken ? "INICIO" : "LOGIN");
+  console.log("Estado actual - userToken:", userToken ? "SÍ" : "NO");
 
   return (
     <NavigationContainer>

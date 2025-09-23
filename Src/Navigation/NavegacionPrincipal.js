@@ -6,7 +6,7 @@ import { View, Text } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
-// Pantallas temporales - reemplaza con tus pantallas reales
+// Pantallas temporales
 function PerfilScreen() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

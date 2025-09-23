@@ -25,7 +25,6 @@ export default function Inicio({ navigation }) {
           onPress: async () => {
             try {
               await AsyncStorage.removeItem("userToken");
-              // La navegación se actualizará automáticamente debido al cambio de userToken
             } catch (error) {
               console.error("Error al cerrar sesión:", error);
             }
@@ -96,10 +95,13 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginVertical: 12,
     width: "100%",
-    // Reemplazado shadow props por elevation para Android y boxShadow para web
+    // Usar elevation para Android y shadow props corregidas para iOS/web
     elevation: 5,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
     shadowOpacity: 0.15,
     shadowRadius: 6,
   },

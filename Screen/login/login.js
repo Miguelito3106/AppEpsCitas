@@ -17,58 +17,26 @@ export default function Login({ navigation }) {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    // Validaciones básicas
     if (!email.trim() || !password.trim()) {
       Alert.alert("Error", "Por favor completa todos los campos");
       return;
     }
 
-    // Validación de formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      Alert.alert("Error", "Por favor ingresa un email válido");
-      return;
-    }
-
     try {
       setLoading(true);
-      console.log("🔐 Intentando login...");
-      
-      // Usar el servicio de autenticación real
       const result = await loginUser(email, password);
-      console.log("📋 Resultado del login:", result);
 
       if (result.success) {
-        console.log("✅ Login exitoso, redirigiendo...");
-        
-        // NO mostrar alerta, redirigir inmediatamente
-        // Forzar recarga del estado de autenticación
-        setTimeout(() => {
-          // La redirección se manejará automáticamente por AppNavegacion
-          // debido al cambio de estado de userToken
-          console.log("🔄 Recargando estado de autenticación...");
-        }, 500);
-        
+        // No mostrar alerta, el cambio de token redirigirá automáticamente
+        console.log("Login exitoso");
       } else {
-        Alert.alert("Error de login", result.message || "Credenciales incorrectas");
+        Alert.alert("Error", result.message || "Credenciales incorrectas");
       }
-      
     } catch (error) {
-      console.error("❌ Error inesperado en login:", error);
+      console.error("Error inesperado en login:", error);
       Alert.alert("Error", "Ocurrió un error inesperado al iniciar sesión.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Función para limpiar token manualmente (debug)
-  const clearToken = async () => {
-    try {
-      const AsyncStorage = await import('@react-native-async-storage/async-storage');
-      await AsyncStorage.default.removeItem("userToken");
-      Alert.alert("Debug", "Token limpiado manualmente");
-    } catch (error) {
-      console.error("Error al limpiar token:", error);
     }
   };
 
@@ -122,21 +90,10 @@ export default function Login({ navigation }) {
         </Text>
       </TouchableOpacity>
 
-      {/* Botón de debug para limpiar token */}
-      <TouchableOpacity
-        style={styles.debugButton}
-        onPress={clearToken}
-      >
-        <Text style={styles.debugText}>[Debug] Limpiar Token</Text>
-      </TouchableOpacity>
-
       {/* Información de debug */}
       <View style={styles.debugInfo}>
         <Text style={styles.debugInfoText}>
-          Estado: {loading ? "Cargando..." : "Listo"}
-        </Text>
-        <Text style={styles.debugInfoText}>
-          Email: {email || "No ingresado"}
+          Para testing: admin@eps.com / 123456
         </Text>
       </View>
     </ScrollView>
@@ -187,22 +144,11 @@ const styles = StyleSheet.create({
     color: "#555",
     textAlign: "center",
   },
-  debugButton: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: "#ff6b6b",
-    borderRadius: 5,
-  },
-  debugText: {
-    color: "#fff",
-    fontSize: 12,
-  },
   debugInfo: {
     marginTop: 20,
     padding: 10,
     backgroundColor: "#e9ecef",
     borderRadius: 5,
-    width: "100%",
   },
   debugInfoText: {
     fontSize: 12,
