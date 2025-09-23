@@ -1,5 +1,13 @@
 import { useState } from "react";
-import {Text,TextInput,TouchableOpacity,StyleSheet,ScrollView,Alert,} from "react-native";
+import {
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  ActivityIndicator
+} from "react-native";
 import { loginUser } from "../../Src/Services/AuthService";
 
 export default function Login({ navigation }) {
@@ -8,8 +16,16 @@ export default function Login({ navigation }) {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    // Validaciones básicas
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Error", "Por favor completa todos los campos");
+      return;
+    }
+
     try {
       setLoading(true);
+      
+      // Usar el servicio de autenticación real
       const result = await loginUser(email, password);
 
       if (result.success) {
@@ -17,17 +33,15 @@ export default function Login({ navigation }) {
           {
             text: "OK",
             onPress: () => {
-              console.log("Login exitoso, redirigiendo automáticamente...");
-              navigation.navigate("Inicio"); 
+              console.log("Login exitoso, redirigiendo al panel principal...");
+              // La redirección se manejará automáticamente por AppNavegacion
             },
           },
         ]);
       } else {
-        Alert.alert(
-          "Error de login",
-          result.message || "Ocurrió un error al iniciar sesión"
-        );
+        Alert.alert("Error", result.message || "Credenciales incorrectas");
       }
+      
     } catch (error) {
       console.error("Error inesperado en login:", error);
       Alert.alert("Error", "Ocurrió un error inesperado al iniciar sesión.");
@@ -51,6 +65,7 @@ export default function Login({ navigation }) {
         autoCapitalize="none"
         value={email}
         onChangeText={setEmail}
+        editable={!loading}
       />
 
       <TextInput
@@ -60,21 +75,25 @@ export default function Login({ navigation }) {
         secureTextEntry
         value={password}
         onChangeText={setPassword}
+        editable={!loading}
       />
 
       <TouchableOpacity
-        style={styles.button}
+        style={[styles.button, loading && styles.buttonDisabled]}
         onPress={handleLogin}
         disabled={loading}
       >
-        <Text style={styles.buttonText}>
-          {loading ? "Cargando..." : "Iniciar sesión"}
-        </Text>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Iniciar sesión</Text>
+        )}
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={{ marginTop: 10 }}
+        style={{ marginTop: 20 }}
         onPress={() => navigation.navigate("Register")}
+        disabled={loading}
       >
         <Text style={styles.registerText}>
           ¿No tienes cuenta? Regístrate
@@ -115,6 +134,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
+  buttonDisabled: {
+    backgroundColor: "#ccc",
+  },
   buttonText: {
     color: "#fff",
     fontSize: 18,
@@ -123,5 +145,6 @@ const styles = StyleSheet.create({
   registerText: {
     fontSize: 14,
     color: "#555",
+    textAlign: "center",
   },
 });

@@ -1,5 +1,6 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Inicio({ navigation }) {
   const opciones = [
@@ -10,10 +11,38 @@ export default function Inicio({ navigation }) {
     { titulo: "Pacientes", ruta: "Pacientes", icono: "people" },
   ];
 
+  const handleLogout = () => {
+    Alert.alert(
+      "Cerrar Sesión",
+      "¿Estás seguro de que quieres cerrar sesión?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Cerrar Sesión",
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem("userToken");
+              // La navegación se actualizará automáticamente debido al cambio de userToken
+            } catch (error) {
+              console.error("Error al cerrar sesión:", error);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#f9fafb" }}>
       <View style={styles.container}>
         <Text style={styles.titulo}>Panel Principal</Text>
+        
+        <Text style={styles.subtitulo}>
+          Bienvenido al sistema de gestión médica
+        </Text>
 
         {opciones.map((item, index) => (
           <TouchableOpacity
@@ -26,6 +55,14 @@ export default function Inicio({ navigation }) {
             <Text style={styles.cardTexto}>{item.titulo}</Text>
           </TouchableOpacity>
         ))}
+
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={handleLogout}
+        >
+          <MaterialIcons name="logout" size={24} color="#fff" />
+          <Text style={styles.logoutText}>Cerrar Sesión</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -40,13 +77,20 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 25,
+    marginBottom: 10,
     color: "#1e293b",
+    textAlign: "center",
+  },
+  subtitulo: {
+    fontSize: 16,
+    color: "#64748b",
+    marginBottom: 30,
+    textAlign: "center",
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#2563eb", 
+    backgroundColor: "#2563eb",
     paddingVertical: 18,
     paddingHorizontal: 25,
     borderRadius: 15,
@@ -65,5 +109,22 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "600",
+  },
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#dc2626",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 30,
+    width: "100%",
+    justifyContent: "center",
+  },
+  logoutText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 10,
   },
 });

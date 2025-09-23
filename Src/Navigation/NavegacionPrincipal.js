@@ -1,7 +1,17 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Iconicons, Feather, materialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, Feather } from '@expo/vector-icons';
+import Inicio from '../../Screen/Inicio/inicio';
 
 const Tab = createBottomTabNavigator();
+
+// Pantallas temporales - reemplaza con tus pantallas reales
+function PerfilScreen() {
+  return null;
+}
+
+function ConfiguracionScreen() {
+  return null;
+}
 
 export default function NavegacionPrincipal() {
   return (
@@ -24,39 +34,39 @@ export default function NavegacionPrincipal() {
         },
       }}
     >
-      <Tab.screen
-        name="inicio"
+      <Tab.Screen
+        name="Inicio"
         component={Inicio}
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Iconicons name="home" color={color} size={size} />
+            <Ionicons name="home" color={color} size={size} />
           ),
-          tabBArLabel: 'Inicio',
+          tabBarLabel: 'Inicio',
         }}
       />
 
-      <Tab.screen
+      <Tab.Screen
         name="Perfil"
-        component={PerfilesScreen}
-        option={{
+        component={PerfilScreen}
+        options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Feather name="search" color={color} size={size} />
+            <Feather name="user" color={color} size={size} />
           ),
-          tabBArLabel: 'Perfil',
+          tabBarLabel: 'Perfil',
         }}
       />
 
-      <Tab.screen
+      <Tab.Screen
         name="Configuraciones"
-        component={ConfiguracionStack}
-        option={{
+        component={ConfiguracionScreen}
+        options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Iconicons name="cog-outline" color={color} size={size} />
+            <Ionicons name="settings" color={color} size={size} />
           ),
-          tabBArLabel: 'Configuracion',
+          tabBarLabel: 'Configuración',
         }}
       />
     </Tab.Navigator>
