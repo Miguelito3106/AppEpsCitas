@@ -13,7 +13,7 @@ import {
   obtenerCitaPorId, 
   crearCita, 
   actualizarCita 
-} from '../../Src/Services/CitasService';
+} from '../../Src/Services/CitasServiceS';
 
 const EditarCitas = ({ route, navigation }) => {
   const { citaId } = route.params;

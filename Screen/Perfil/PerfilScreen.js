@@ -1,11 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import BottonComponent from "../../components/BottonComponent";
-import { ThemeContext } from "../../components/ThemeContext";
-import ThemeSwitcher from "../../components/ThemeSwitcher";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import apiConexion from "../../Src/Service/Conexion";
+import apiConexion from "../../Src/Services/conexion";
 
 export default function perfilScreen({ navigation }) {
 

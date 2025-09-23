@@ -1,6 +1,8 @@
+import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Inicio({ navigation }) {
   const opciones = [
@@ -22,6 +24,10 @@ export default function Inicio({ navigation }) {
           onPress: async () => {
             try {
               await AsyncStorage.removeItem("userToken");
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Login" }],
+              });
             } catch (error) {
               console.error("Error al cerrar sesión:", error);
             }
@@ -51,9 +57,17 @@ export default function Inicio({ navigation }) {
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <MaterialIcons name="logout" size={24} color="#fff" />
-          <Text style={styles.logoutText}>Cerrar Sesión</Text>
+        {/* Botón Cerrar Sesión con gradiente */}
+        <TouchableOpacity style={{ width: "100%", marginTop: 40 }} onPress={handleLogout}>
+          <LinearGradient
+            colors={["#0ea5e9", "#2563eb"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.logoutButton}
+          >
+            <MaterialIcons name="logout" size={24} color="#fff" />
+            <Text style={styles.logoutText}>Cerrar Sesión</Text>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -108,12 +122,9 @@ const styles = StyleSheet.create({
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "linear-gradient(90deg, #0ea5e9, #2563eb)", // gradiente
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 15,
-    marginTop: 40,
-    width: "100%",
     justifyContent: "center",
     elevation: 6,
     shadowColor: "#0ea5e9",

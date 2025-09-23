@@ -1,84 +1,39 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons, Feather } from '@expo/vector-icons';
-import Inicio from '../../Screen/Inicio/inicio';
-import React from 'react';
-import { View, Text } from 'react-native';
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Inicio from "../../Screen/Inicio/inicio"; 
+import CitasStack from "./Stack/CitasStack"; 
+import PerfilScreen from "../../Screen/Perfil/PerfilScreen";
 
-const Tab = createBottomTabNavigator();
-
-// Pantallas temporales
-function PerfilScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Pantalla de Perfil</Text>
-    </View>
-  );
-}
-
-function ConfiguracionScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Pantalla de Configuración</Text>
-    </View>
-  );
-}
+const Stack = createNativeStackNavigator();
 
 export default function NavegacionPrincipal() {
   return (
-    <Tab.Navigator
+    <Stack.Navigator
+      initialRouteName="Inicio"
       screenOptions={{
-        tabBarStyle: {
-          backgroundColor: '#f9f9f9',
-          borderTopWidth: 1,
-          borderTopColor: '#e0e0e0',
-          height: 60,
-          paddingBottom: 5,
-          paddingTop: 5,
-        },
-        tabBarActiveTintColor: '#6200ee',
-        tabBarInactiveTintColor: '#222',
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-          marginBottom: 5,
-        },
+        headerShown: true,
+        headerStyle: { backgroundColor: "#007BFF" },
+        headerTintColor: "#fff",
+        headerTitleStyle: { fontWeight: "bold" },
       }}
     >
-      <Tab.Screen
+      <Stack.Screen
         name="Inicio"
         component={Inicio}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
-          ),
-          tabBarLabel: 'Inicio',
-        }}
+        options={{ title: "Panel Principal" }}
       />
 
-      <Tab.Screen
+      <Stack.Screen
+        name="Citas"
+        component={CitasStack}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
         name="Perfil"
         component={PerfilScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="user" color={color} size={size} />
-          ),
-          tabBarLabel: 'Perfil',
-        }}
+        options={{ title: "Perfil de Usuario" }}
       />
-
-      <Tab.Screen
-        name="Configuraciones"
-        component={ConfiguracionScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings" color={color} size={size} />
-          ),
-          tabBarLabel: 'Configuración',
-        }}
-      />
-    </Tab.Navigator>
+    </Stack.Navigator>
   );
 }
