@@ -1,16 +1,26 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import Inicio from '../../Screen/Inicio/inicio';
+import React from 'react';
+import { View, Text } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
 // Pantallas temporales - reemplaza con tus pantallas reales
 function PerfilScreen() {
-  return null;
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Pantalla de Perfil</Text>
+    </View>
+  );
 }
 
 function ConfiguracionScreen() {
-  return null;
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Pantalla de Configuración</Text>
+    </View>
+  );
 }
 
 export default function NavegacionPrincipal() {

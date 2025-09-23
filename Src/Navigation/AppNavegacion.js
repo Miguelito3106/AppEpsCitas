@@ -12,31 +12,35 @@ export default function AppNavegacion() {
 
   const loadToken = async () => {
     try {
+      // Para DEBUG: Limpiar el token al cargar (opcional)
+      // await AsyncStorage.removeItem("userToken");
+      
       const token = await AsyncStorage.getItem("userToken");
-      console.log("Token cargado:", token);
+      console.log("🔑 Token cargado:", token ? "SÍ existe" : "NO existe");
       setUserToken(token);
     } catch (error) {
-      console.error("Error al cargar el token:", error);
+      console.error("❌ Error al cargar el token:", error);
+      setUserToken(null);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Escuchar cambios en el almacenamiento
-  useEffect(() => {
-    const checkTokenChange = async () => {
-      const token = await AsyncStorage.getItem("userToken");
-      if (token !== userToken) {
-        setUserToken(token);
-      }
-    };
-
-    const interval = setInterval(checkTokenChange, 1000);
-    return () => clearInterval(interval);
-  }, [userToken]);
+  // Limpiar token al iniciar (para testing)
+  const clearTokenOnStart = async () => {
+    try {
+      await AsyncStorage.removeItem("userToken");
+      console.log("🗑️ Token limpiado al iniciar");
+    } catch (error) {
+      console.error("Error al limpiar token:", error);
+    }
+  };
 
   // Se ejecuta cuando el componente se monta
   useEffect(() => {
+    // Opcional: Descomenta la siguiente línea para limpiar el token al iniciar
+    // clearTokenOnStart();
+    
     loadToken();
   }, []);
 
@@ -44,7 +48,7 @@ export default function AppNavegacion() {
   useEffect(() => {
     const handleAppStateChange = (nextAppState) => {
       if (appState.current.match(/inactive|background/) && nextAppState === "active") {
-        console.log("La aplicación ha vuelto al primer plano, verificando el token...");
+        console.log("🔄 La aplicación ha vuelto al primer plano, verificando token...");
         loadToken();
       }
       appState.current = nextAppState;
@@ -58,12 +62,12 @@ export default function AppNavegacion() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#007BFF" />
-        <Text style={{ marginTop: 10 }}>Cargando...</Text>
+        <Text style={{ marginTop: 10, color: '#666' }}>Cargando...</Text>
       </View>
     );
   }
 
-  console.log("Estado actual - userToken:", userToken ? "SÍ" : "NO");
+  console.log("🎯 Estado actual - Mostrando:", userToken ? "INICIO" : "LOGIN");
 
   return (
     <NavigationContainer>

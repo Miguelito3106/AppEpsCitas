@@ -96,11 +96,12 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginVertical: 12,
     width: "100%",
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 6,
+    // Reemplazado shadow props por elevation para Android y boxShadow para web
     elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
   },
   icono: {
     marginRight: 15,
