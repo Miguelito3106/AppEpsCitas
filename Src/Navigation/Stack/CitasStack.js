@@ -1,28 +1,31 @@
-import {createStackNAvigator} from '@react-navigation/stack';
-import listarCitas from '../../Screens/Citas/ListarCitas';
-import detalleCita from '../../Screens/Citas/DetalleCita';
-import editarCita from '../../Screens/Citas/EditarCita';
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import ListarCitas from '../../../Screen/Citas/listarCitas';
+import DetalleCitas from '../../../Screen/Citas/detalleCitas';
+import EditarCitas from '../../../Screen/Citas/editarCitas';
 
-const stack = createStackNAvigator();
+const Stack = createNativeStackNavigator();
 
-export default function CitasStack() {
-    return(
-        <stack.Navigator>
-            <stack.Screen
-                name="listarCitas"
-                component={listarCitas}
-                options={{title: 'Citas'}}
-            />
-            <stack.Screen   
-                name="detalleCita"
-                component={detalleCita}
-                options={{title: 'Detalle de la Cita'}}
-            />
-            <stack.Screen   
-                name="editarCita"
-                component={editarCita}
-                options={{title: 'Editar Cita'}}
-            />
-        </stack.Navigator>
-    )
-}
+const CitasStack = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="ListarCitas" 
+        component={ListarCitas}
+        options={{ title: 'Mis Citas Médicas' }}
+      />
+      <Stack.Screen 
+        name="DetalleCitas" 
+        component={DetalleCitas}
+        options={{ title: 'Detalle de Cita' }}
+      />
+      <Stack.Screen 
+        name="EditarCitas" 
+        component={EditarCitas}
+        options={{ title: 'Editar Cita' }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+export default CitasStack;

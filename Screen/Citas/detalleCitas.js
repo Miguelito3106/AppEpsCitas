@@ -1,73 +1,231 @@
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import React, { useState, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
+  Alert 
+} from 'react-native';
+import { obtenerCitaPorId, eliminarCita } from '../../Src/Services/CitasService';
 
-export default function Citas({ navigation }) {
-  const citas = [
-    { id: "1", paciente: "Juan Pérez", fecha: "2025-09-20", hora: "10:00 AM", doctor: "Dr. Ramírez" },
-    { id: "2", paciente: "María Gómez", fecha: "2025-09-21", hora: "02:30 PM", doctor: "Dra. Sánchez" },
-    { id: "3", paciente: "Carlos López", fecha: "2025-09-22", hora: "09:00 AM", doctor: "Dr. Fernández" },
-  ];
+const DetalleCitas = ({ route, navigation }) => {
+  const { citaId } = route.params;
+  const [cita, setCita] = useState(null);
+  const [cargando, setCargando] = useState(true);
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate("DetalleCita", { cita: item })}
-    >
-      <MaterialIcons name="event" size={28} color="#2563eb" style={{ marginRight: 10 }} />
-      <View>
-        <Text style={styles.nombre}>{item.paciente}</Text>
-        <Text style={styles.info}>{item.fecha} - {item.hora}</Text>
-        <Text style={styles.info}>Doctor: {item.doctor}</Text>
+  const cargarCita = async () => {
+    try {
+      const citaData = await obtenerCitaPorId(citaId);
+      setCita(citaData);
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo cargar la cita');
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarCita();
+  }, [citaId]);
+
+  const manejarEliminar = () => {
+    Alert.alert(
+      'Eliminar Cita',
+      `¿Estás seguro de eliminar la cita de ${cita?.paciente}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await eliminarCita(citaId);
+              Alert.alert('Éxito', 'Cita eliminada correctamente');
+              navigation.goBack();
+            } catch (error) {
+              Alert.alert('Error', 'No se pudo eliminar la cita');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const formatearFecha = (fecha) => {
+    return new Date(fecha).toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  if (cargando) {
+    return (
+      <View style={styles.centrado}>
+        <Text>Cargando cita...</Text>
       </View>
-    </TouchableOpacity>
-  );
+    );
+  }
+
+  if (!cita) {
+    return (
+      <View style={styles.centrado}>
+        <Text>Cita no encontrada</Text>
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>Citas Programadas</Text>
-      <FlatList
-        data={citas}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
-    </View>
+    <ScrollView style={styles.contenedor}>
+      <View style={styles.cabecera}>
+        <Text style={styles.titulo}>Detalle de Cita</Text>
+      </View>
+
+      <View style={styles.tarjetaDetalle}>
+        <View style={styles.filaDetalle}>
+          <Text style={styles.etiqueta}>Paciente:</Text>
+          <Text style={styles.valor}>{cita.paciente}</Text>
+        </View>
+
+        <View style={styles.filaDetalle}>
+          <Text style={styles.etiqueta}>Médico:</Text>
+          <Text style={styles.valor}>{cita.medico}</Text>
+        </View>
+
+        <View style={styles.filaDetalle}>
+          <Text style={styles.etiqueta}>Especialidad:</Text>
+          <Text style={styles.valor}>{cita.especialidad}</Text>
+        </View>
+
+        <View style={styles.filaDetalle}>
+          <Text style={styles.etiqueta}>Consultorio:</Text>
+          <Text style={styles.valor}>{cita.consultorio}</Text>
+        </View>
+
+        <View style={styles.filaDetalle}>
+          <Text style={styles.etiqueta}>Fecha:</Text>
+          <Text style={styles.valor}>{formatearFecha(cita.fecha)}</Text>
+        </View>
+
+        <View style={styles.filaDetalle}>
+          <Text style={styles.etiqueta}>Hora:</Text>
+          <Text style={styles.valor}>{cita.hora}</Text>
+        </View>
+
+        <View style={styles.filaDetalle}>
+          <Text style={styles.etiqueta}>Estado:</Text>
+          <Text style={[styles.valor, styles.estado]}>{cita.estado}</Text>
+        </View>
+
+        {cita.notas && (
+          <View style={styles.filaDetalle}>
+            <Text style={styles.etiqueta}>Notas:</Text>
+            <Text style={styles.valor}>{cita.notas}</Text>
+          </View>
+        )}
+
+        <View style={styles.filaDetalle}>
+          <Text style={styles.etiqueta}>Creada el:</Text>
+          <Text style={styles.valor}>
+            {new Date(cita.createdAt).toLocaleDateString('es-ES')}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.botonesAccion}>
+        <TouchableOpacity 
+          style={styles.botonEditar}
+          onPress={() => navigation.navigate('EditarCitas', { citaId: cita.id })}
+        >
+          <Text style={styles.textoBoton}>Editar Cita</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.botonEliminar}
+          onPress={manejarEliminar}
+        >
+          <Text style={styles.textoBoton}>Eliminar Cita</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
+  contenedor: {
     flex: 1,
-    backgroundColor: "#f9fafb",
+    backgroundColor: '#f5f5f5',
+  },
+  centrado: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cabecera: {
+    backgroundColor: '#2196F3',
     padding: 20,
   },
   titulo: {
     fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "#1e293b",
-    textAlign: "center",
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
   },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 15,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+  tarjetaDetalle: {
+    backgroundColor: 'white',
+    margin: 15,
+    padding: 20,
+    borderRadius: 10,
     elevation: 3,
   },
-  nombre: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#111827",
+  filaDetalle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    paddingBottom: 15,
   },
-  info: {
-    fontSize: 14,
-    color: "#6b7280",
+  etiqueta: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    flex: 1,
+  },
+  valor: {
+    fontSize: 16,
+    color: '#666',
+    flex: 2,
+    textAlign: 'right',
+  },
+  estado: {
+    fontWeight: 'bold',
+    textTransform: 'capitalize',
+  },
+  botonesAccion: {
+    padding: 15,
+  },
+  botonEditar: {
+    backgroundColor: '#FF9800',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  botonEliminar: {
+    backgroundColor: '#F44336',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  textoBoton: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
+
+export default DetalleCitas;
