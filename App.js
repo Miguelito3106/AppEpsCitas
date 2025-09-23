@@ -2,13 +2,17 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'react-native';
-import HomeScreen from './src/views/HomeScreen';
-import ExchangeRatesScreen from './src/views/ExchangeRatesScreen';
-import CalculatorScreen from './src/views/CalculatorScreen';
-import HistoryScreen from './src/views/HistoryScreen';
-import AppointmentsScreen from './src/views/AppointmentsScreen';
-import CreateAppointmentScreen from './src/views/CreateAppointmentScreen';
-import AppointmentDetailScreen from './src/views/AppointmentDetailScreen';
+
+// Corrige las rutas de importación según tu estructura real
+import HomeScreen from './Screen/Inicio/inicio'; // Ruta corregida
+//import ExchangeRatesScreen from './Screen/ExchangeRatesScreen'; // Debes crear este archivo
+//import CalculatorScreen from './Screen/CalculatorScreen'; // Debes crear este archivo
+//import HistoryScreen from './Screen/HistoryScreen'; // Debes crear este archivo
+
+// Para citas, usa la estructura que ya tienes
+import ListarCitas from './Screen/Citas/listarCitas';
+import DetalleCitas from './Screen/Citas/detalleCitas';
+import EditarCitas from './Screen/Citas/editarCitas';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,20 +41,21 @@ export default function App() {
           component={HistoryScreen}
           options={{ title: 'Historial' }}
         />
+        {/* Pantallas de Citas - usando tus archivos existentes */}
         <Stack.Screen 
-          name="Appointments" 
-          component={AppointmentsScreen}
-          options={{ title: 'Mis Citas' }}
+          name="ListarCitas" 
+          component={ListarCitas}
+          options={{ title: 'Mis Citas Médicas' }}
         />
         <Stack.Screen 
-          name="CreateAppointment" 
-          component={CreateAppointmentScreen}
-          options={{ title: 'Agendar Cita' }}
-        />
-        <Stack.Screen 
-          name="AppointmentDetail" 
-          component={AppointmentDetailScreen}
+          name="DetalleCitas" 
+          component={DetalleCitas}
           options={{ title: 'Detalle de Cita' }}
+        />
+        <Stack.Screen 
+          name="EditarCitas" 
+          component={EditarCitas}
+          options={{ title: 'Editar Cita' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
