@@ -1,29 +1,24 @@
 import React from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import ListarCitas from "../../../Screen/Citas/ListarCitas";
-import CrearCita from "../../../Screen/Citas/CrearCitas";
-const Stack = createNativeStackNavigator();
+import { createStackNavigator } from "@react-navigation/stack";
+import ListarCitas from "../../../Screen/Citas/listarCitas";
+import CrearCita from "../../../Screen/Citas/EditarCitas";
 
-export default function CitasStack() {
-  return (
-    <Stack.Navigator
-      initialRouteName="ListarCitas"
-      screenOptions={{
-        headerStyle: { backgroundColor: "#007BFF" },
-        headerTintColor: "#fff",
-        headerTitleStyle: { fontWeight: "bold" },
-      }}
-    >
+const Stack = createStackNavigator();
+
+const CitasStack = () => {
+  return(
+    <Stack.Navigator>
       <Stack.Screen
-        name="ListarCitas"
+        name="Citas"
         component={ListarCitas}
         options={{ title: "Citas" }}
       />
       <Stack.Screen
         name="CrearCita"
         component={CrearCita}
-        options={{ title: "Nueva Cita" }}
+        options={{ title: "Agregar Cita" }}
       />
     </Stack.Navigator>
-  );
+  )
 }
+export default CitasStack;

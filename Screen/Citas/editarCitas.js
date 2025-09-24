@@ -1,327 +1,158 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TextInput, 
-  TouchableOpacity, 
-  ScrollView, 
-  Alert,
-  Picker 
-} from 'react-native';
-import { 
-  obtenerCitaPorId, 
-  crearCita, 
-  actualizarCita 
-} from '../../Src/Services/CitasServiceS';
+import React, {useState, useEffect } from "react";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { crearCita, editarCita } from "../../Src/Services/CitasService";
 
-const EditarCitas = ({ route, navigation }) => {
-  const { citaId } = route.params;
-  const [cargando, setCargando] = useState(false);
-  const [formulario, setFormulario] = useState({
-    paciente: '',
-    medico: '',
-    especialidad: 'Medicina General',
-    consultorio: '',
-    fecha: '',
-    hora: '09:00',
-    estado: 'pendiente',
-    notas: ''
-  });
+export default function EditarCitas() {
+  const navigation = useNavigation();
+  const route = useRoute();
 
-  const especialidades = [
-    'Medicina General',
-    'Pediatría',
-    'Cardiología',
-    'Dermatología',
-    'Ginecología',
-    'Ortopedia',
-    'Oftalmología',
-    'Odontología',
-    'Psicología'
-  ];
+  const { cita } = route.params?.cita;
 
-  const horasDisponibles = [
-    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-    '11:00', '11:30', '14:00', '14:30', '15:00', '15:30',
-    '16:00', '16:30', '17:00', '17:30'
-  ];
+  const [pacienteId, setPacienteId] = useState(cita ? String(cita.pacienteId) : "");
+  const [idMedico, setIdMedico] = useState(cita ? String(cita.idMedico) : "");
+  const [fecha_cita, setFecha_cita] = useState(cita ? cita.fecha_cita : "");
+  const [hora_cita, setHora_cita] = useState(cita ? cita.hora_cita : "");
+  const [estado, setEstado] = useState(cita ? cita.estado : "");
+  const [motivo, setMotivo] = useState(cita ? cita.motivo : "");
+  const [loading, setLoading] = useState(false);
 
-  const estados = ['pendiente', 'confirmada', 'cancelada', 'completada'];
+  const esEdicion = !!cita;
 
-  useEffect(() => {
-    if (citaId) {
-      cargarCitaExistente();
+  const handleGuardar = async () => {
+    if (!pacienteId || !idMedico || !fecha_cita || !hora_cita || !estado || !motivo) {
+      Alert.alert("Error", "Por favor, complete todos los campos.");
+      return;
     }
-  }, [citaId]);
-
-  const cargarCitaExistente = async () => {
+    setLoading(true);
     try {
-      const cita = await obtenerCitaPorId(citaId);
-      if (cita) {
-        setFormulario(cita);
-      }
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo cargar la cita');
-    }
-  };
-
-  const manejarCambio = (campo, valor) => {
-    setFormulario(prev => ({
-      ...prev,
-      [campo]: valor
-    }));
-  };
-
-  const validarFormulario = () => {
-    if (!formulario.paciente.trim()) {
-      Alert.alert('Error', 'El nombre del paciente es requerido');
-      return false;
-    }
-    if (!formulario.medico.trim()) {
-      Alert.alert('Error', 'El nombre del médico es requerido');
-      return false;
-    }
-    if (!formulario.consultorio.trim()) {
-      Alert.alert('Error', 'El consultorio es requerido');
-      return false;
-    }
-    if (!formulario.fecha) {
-      Alert.alert('Error', 'La fecha es requerida');
-      return false;
-    }
-    return true;
-  };
-
-  const manejarGuardar = async () => {
-    if (!validarFormulario()) return;
-
-    setCargando(true);
-    try {
-      if (citaId) {
-        // Actualizar cita existente
-        await actualizarCita(citaId, formulario);
-        Alert.alert('Éxito', 'Cita actualizada correctamente');
+      let result;
+      if (esEdicion) {
+        result = await editarCita(cita.id, {
+          pacienteId,
+          idMedico,
+          fecha_cita,
+          hora_cita,
+          estado,
+          motivo,
+        });
       } else {
-        // Crear nueva cita
-        await crearCita(formulario);
-        Alert.alert('Éxito', 'Cita creada correctamente');
+        result = await crearCita({ pacienteId, idMedico, fecha_cita, hora_cita, estado, motivo });
       }
-      navigation.goBack();
+      if (result.succes) {
+        Alert.alert("Éxito", `Cita ${esEdicion ? "editada" : "creada"} exitosamente.`);
+        navigation.goBack(); // Volver a la pantalla anterior
+      } else {
+        Alert.alert("Error", result.message || "Hubo un problema al guardar la cita.");
+      }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo guardar la cita');
-    } finally {
-      setCargando(false);
-    }
-  };
+      Alert.alert("Error", "Hubo un problema al guardar la cita.");
+      
+    }finally {
+      setLoading(false);
+  }
+}
 
-  const obtenerFechaHoy = () => {
-    const hoy = new Date();
-    return hoy.toISOString().split('T')[0];
-  };
-
-  return (
-    <ScrollView style={styles.contenedor}>
-      <View style={styles.cabecera}>
-        <Text style={styles.titulo}>
-          {citaId ? 'Editar Cita' : 'Nueva Cita'}
-        </Text>
-      </View>
-
-      <View style={styles.formulario}>
-        <View style={styles.grupoInput}>
-          <Text style={styles.etiqueta}>Paciente *</Text>
-          <TextInput
-            style={styles.input}
-            value={formulario.paciente}
-            onChangeText={(texto) => manejarCambio('paciente', texto)}
-            placeholder="Nombre completo del paciente"
-          />
-        </View>
-
-        <View style={styles.grupoInput}>
-          <Text style={styles.etiqueta}>Médico *</Text>
-          <TextInput
-            style={styles.input}
-            value={formulario.medico}
-            onChangeText={(texto) => manejarCambio('medico', texto)}
-            placeholder="Nombre del médico"
-          />
-        </View>
-
-        <View style={styles.grupoInput}>
-          <Text style={styles.etiqueta}>Especialidad</Text>
-          <Picker
-            selectedValue={formulario.especialidad}
-            style={styles.picker}
-            onValueChange={(valor) => manejarCambio('especialidad', valor)}
-          >
-            {especialidades.map(especialidad => (
-              <Picker.Item key={especialidad} label={especialidad} value={especialidad} />
-            ))}
-          </Picker>
-        </View>
-
-        <View style={styles.grupoInput}>
-          <Text style={styles.etiqueta}>Consultorio *</Text>
-          <TextInput
-            style={styles.input}
-            value={formulario.consultorio}
-            onChangeText={(texto) => manejarCambio('consultorio', texto)}
-            placeholder="Número o nombre del consultorio"
-          />
-        </View>
-
-        <View style={styles.grupoInput}>
-          <Text style={styles.etiqueta}>Fecha *</Text>
-          <TextInput
-            style={styles.input}
-            value={formulario.fecha}
-            onChangeText={(texto) => manejarCambio('fecha', texto)}
-            placeholder="YYYY-MM-DD"
-            keyboardType="numbers-and-punctuation"
-          />
-          <Text style={styles.ayuda}>Formato: AAAA-MM-DD (ej: 2024-09-25)</Text>
-        </View>
-
-        <View style={styles.grupoInput}>
-          <Text style={styles.etiqueta}>Hora</Text>
-          <Picker
-            selectedValue={formulario.hora}
-            style={styles.picker}
-            onValueChange={(valor) => manejarCambio('hora', valor)}
-          >
-            {horasDisponibles.map(hora => (
-              <Picker.Item key={hora} label={hora} value={hora} />
-            ))}
-          </Picker>
-        </View>
-
-        {citaId && (
-          <View style={styles.grupoInput}>
-            <Text style={styles.etiqueta}>Estado</Text>
-            <Picker
-              selectedValue={formulario.estado}
-              style={styles.picker}
-              onValueChange={(valor) => manejarCambio('estado', valor)}
-            >
-              {estados.map(estado => (
-                <Picker.Item key={estado} label={estado} value={estado} />
-              ))}
-            </Picker>
-          </View>
-        )}
-
-        <View style={styles.grupoInput}>
-          <Text style={styles.etiqueta}>Notas</Text>
-          <TextInput
-            style={[styles.input, styles.areaTexto]}
-            value={formulario.notas}
-            onChangeText={(texto) => manejarCambio('notas', texto)}
-            placeholder="Observaciones o síntomas..."
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-          />
-        </View>
-
-        <TouchableOpacity 
-          style={[styles.botonGuardar, cargando && styles.botonDeshabilitado]}
-          onPress={manejarGuardar}
-          disabled={cargando}
-        >
-          <Text style={styles.textoBotonGuardar}>
-            {cargando ? 'Guardando...' : (citaId ? 'Actualizar Cita' : 'Crear Cita')}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.botonCancelar}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.textoBotonCancelar}>Cancelar</Text>
+return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.container}>
+        <Text style={styles.title}>{esEdicion ? "Editar Cita" : "Crear Cita"}</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="ID Paciente" 
+          value={pacienteId}
+          onChangeText={setPacienteId}
+          keyboardType="numeric"
+        />
+        <TextInput
+          style={styles.input}  
+          placeholder="ID Médico"
+          value={idMedico}
+          onChangeText={setIdMedico}
+          keyboardType="numeric"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Fecha de la Cita (YYYY-MM-DD)"
+          value={fecha_cita}
+          onChangeText={setFecha_cita}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Hora de la Cita (HH:MM)"
+          value={hora_cita}
+          onChangeText={setHora_cita}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Estado"
+          value={estado}
+          onChangeText={setEstado}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Motivo"
+          value={motivo}
+          onChangeText={setMotivo}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleGuardar} disabled={loading}>
+          <Text style={styles.buttonText}>{loading ? <ActivityIndicator color="#fff" /> : esEdicion ? "Guardar Cambios" : "Crear Cita"}</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
-  );
-};
+          
+    </ScrollView>    
+)
 
+}
 const styles = StyleSheet.create({
-  contenedor: {
+  container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  cabecera: {
-    backgroundColor: '#2196F3',
     padding: 20,
+    backgroundColor: "#F2F6FF", // fondo más suave
   },
-  titulo: {
+  title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-  },
-  formulario: {
-    padding: 20,
-  },
-  grupoInput: {
+    fontWeight: "700",
     marginBottom: 20,
-  },
-  etiqueta: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
+    color: "#1E3A8A", // azul oscuro
+    textAlign: "center",
   },
   input: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 16,
     fontSize: 16,
-  },
-  areaTexto: {
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  picker: {
-    backgroundColor: 'white',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    borderColor: "#CBD5E1", // gris suave
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2, // efecto en Android
   },
-  ayuda: {
+  boton: {
+    backgroundColor: "#2563EB", // azul vibrante
+    padding: 16,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  textoBoton: {
+    color: "#FFF",
+    fontWeight: "bold",
+    fontSize: 16,
+    letterSpacing: 0.5,
+  },
+  label: {
+    fontSize: 14,
+    color: "#475569", // gris medio
+    marginBottom: 6,
+  },
+  errorText: {
     fontSize: 12,
-    color: '#666',
-    marginTop: 5,
-  },
-  botonGuardar: {
-    backgroundColor: '#4CAF50',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  botonDeshabilitado: {
-    backgroundColor: '#cccccc',
-  },
-  textoBotonGuardar: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  botonCancelar: {
-    backgroundColor: '#757575',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  textoBotonCancelar: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: "#DC2626", // rojo para errores
+    marginBottom: 8,
   },
 });
-
-export default EditarCitas;

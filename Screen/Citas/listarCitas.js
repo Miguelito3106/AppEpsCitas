@@ -1,324 +1,125 @@
-import { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  FlatList, 
-  TouchableOpacity, 
-  Alert,
-  RefreshControl 
-} from 'react-native';
-import { obtenerCitas, eliminarCita } from '../../Src/Services/CitasService';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from 'react-native'
+import { listarCitas, EliminarCita } from '../../Src/Services/CitasService'
+import { useNavigation } from '@react-navigation/native'
+import CitasCard from '../../Components/CitasCard'
+import { useEffect, useState } from 'react'
 
-const ListarCitas = ({ navigation }) => {
+export default function ListarCitas() {
   const [citas, setCitas] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const [refrescando, setRefrescando] = useState(false);
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
 
-  const cargarCitas = async () => {
+  const handleCitas = async () => {
+    setLoading(true);
     try {
-      const citasData = await obtenerCitas();
-      setCitas(citasData);
+      const result = await listarCitas();
+      if (result.succes) {
+        setCitas(result.data);
+      } else {
+        Alert.alert("Error", result.message || "Error al cargar citas");
+      }
     } catch (error) {
-      Alert.alert('Error', 'No se pudieron cargar las citas');
+      Alert.alert("Error", "No se pudieron cargar las citas");
     } finally {
-      setCargando(false);
-      setRefrescando(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    cargarCitas();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', handleCitas);
+    return unsubscribe;
+  }, [navigation]);
 
-  const manejarRefrescar = () => {
-    setRefrescando(true);
-    cargarCitas();
+  const handleEditar = (cita) => {
+    navigation.navigate('EditarCitas', { cita });
   };
 
-  const manejarEliminarCita = (id, paciente) => {
+  const handleCrearCita = () => {
+    navigation.navigate('CrearCita'); // ojo: que coincida con tu Stack
+  };
+
+  const handleEliminar = (id) => {
     Alert.alert(
-      'Eliminar Cita',
-      `¿Estás seguro de eliminar la cita de ${paciente}?`,
+      "Confirmar Eliminación",
+      "¿Estás seguro de que deseas eliminar esta cita?",
       [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
+        { text: "Cancelar", style: "cancel" },
+        { 
+          text: "Eliminar",
+          style: "destructive",
           onPress: async () => {
             try {
-              await eliminarCita(id);
-              await cargarCitas();
-              Alert.alert('Éxito', 'Cita eliminada correctamente');
+              const result = await EliminarCita(id);
+              if (result.succes) {
+                setCitas(citas.filter(cita => cita.id !== id));
+              } else {
+                Alert.alert("Error", result.message || "Error al eliminar la cita");
+              }
             } catch (error) {
-              Alert.alert('Error', 'No se pudo eliminar la cita');
+              Alert.alert("Error", "No se pudo eliminar la cita");
             }
-          },
-        },
+          }
+        }
       ]
     );
   };
 
-  const obtenerColorEstado = (estado) => {
-    switch (estado) {
-      case 'confirmada': return '#4CAF50';
-      case 'pendiente': return '#FF9800';
-      case 'cancelada': return '#F44336';
-      case 'completada': return '#2196F3';
-      default: return '#757575';
-    }
-  };
-
-  const formatearFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  const renderItemCita = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.tarjetaCita}
-      onPress={() => navigation.navigate('DetalleCitas', { citaId: item.id })}
-    >
-      <View style={styles.cabeceraTarjeta}>
-        <Text style={styles.nombrePaciente}>{item.paciente}</Text>
-        <View style={[styles.estadoBadge, { backgroundColor: obtenerColorEstado(item.estado) }]}>
-          <Text style={styles.textoEstado}>{item.estado}</Text>
-        </View>
-      </View>
-      
-      <Text style={styles.medico}>{item.medico}</Text>
-      <Text style={styles.especialidad}>{item.especialidad}</Text>
-      
-      <View style={styles.infoCita}>
-        <Text style={styles.fecha}>{formatearFecha(item.fecha)}</Text>
-        <Text style={styles.hora}>{item.hora}</Text>
-      </View>
-      
-      <Text style={styles.consultorio}>{item.consultorio}</Text>
-      
-      <View style={styles.botonesAccion}>
-        <TouchableOpacity 
-          style={styles.botonVer}
-          onPress={() => navigation.navigate('DetalleCitas', { citaId: item.id })}
-        >
-          <Text style={styles.textoBotonVer}>Ver Detalles</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.botonEditar}
-          onPress={() => navigation.navigate('EditarCitas', { citaId: item.id })}
-        >
-          <Text style={styles.textoBotonEditar}>Editar</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.botonEliminar}
-          onPress={() => manejarEliminarCita(item.id, item.paciente)}
-        >
-          <Text style={styles.textoBotonEliminar}>Eliminar</Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
-
-  if (cargando) {
+  if (loading) {
     return (
-      <View style={styles.centrado}>
-        <Text>Cargando citas...</Text>
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#007bff" />
       </View>
     );
   }
 
   return (
-    <View style={styles.contenedor}>
-      <View style={styles.cabecera}>
-        <Text style={styles.titulo}>Mis Citas Médicas</Text>
-        <TouchableOpacity 
-          style={styles.botonAgregar}
-          onPress={() => navigation.navigate('EditarCitas', { citaId: null })}
-        >
-          <Text style={styles.textoBotonAgregar}>+ Nueva Cita</Text>
-        </TouchableOpacity>
-      </View>
-
+    <View style={styles.container}>
       <FlatList
-        data={citas}
-        renderItem={renderItemCita}
-        keyExtractor={item => item.id}
-        refreshControl={
-          <RefreshControl refreshing={refrescando} onRefresh={manejarRefrescar} />
-        }
-        ListEmptyComponent={
-          <View style={styles.listaVacia}>
-            <Text style={styles.textoListaVacia}>No hay citas programadas</Text>
-            <TouchableOpacity 
-              style={styles.botonAgregarPrimera}
-              onPress={() => navigation.navigate('EditarCitas', { citaId: null })}
-            >
-              <Text style={styles.textoBotonAgregarPrimera}>Agendar primera cita</Text>
-            </TouchableOpacity>
-          </View>
-        }
+        data={citas}  
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <CitasCard
+            cita={item}
+            onEdit={() => handleEditar(item)}
+            onDelete={() => handleEliminar(item.id)}
+          />
+        )}
+        ListEmptyComponent={<Text style={styles.empty}>No hay citas disponibles.</Text>}
+        contentContainerStyle={citas.length === 0 && { flex: 1, justifyContent: "center" }}
       />
+      <TouchableOpacity style={styles.botoncrear} onPress={handleCrearCita}>
+        <Text style={styles.textoboton}>+ Crear Cita</Text>
+      </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  contenedor: {
+  container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f8f9fa",
   },
-  centrado: {
+  centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
-  cabecera: {
-    backgroundColor: '#2196F3',
-    padding: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  titulo: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  botonAgregar: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  textoBotonAgregar: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  tarjetaCita: {
-    backgroundColor: 'white',
-    margin: 10,
-    padding: 15,
-    borderRadius: 10,
-    elevation: 3,
-  },
-  cabeceraTarjeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  nombrePaciente: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    flex: 1,
-  },
-  estadoBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
-  },
-  textoEstado: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  medico: {
+  empty: {
+    textAlign: "center",
+    marginTop: 20,
     fontSize: 16,
-    color: '#333',
-    marginBottom: 5,
+    color: "#888",
   },
-  especialidad: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 10,
+  botoncrear: {
+    backgroundColor: "#007bff",
+    padding: 15,
+    borderRadius: 8,
+    margin: 20,
+    alignItems: "center",
   },
-  infoCita: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  fecha: {
-    fontSize: 14,
-    color: '#333',
-    fontWeight: 'bold',
-  },
-  hora: {
-    fontSize: 14,
-    color: '#333',
-    fontWeight: 'bold',
-  },
-  consultorio: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 15,
-  },
-  botonesAccion: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  botonVer: {
-    backgroundColor: '#2196F3',
-    padding: 10,
-    borderRadius: 5,
-    flex: 1,
-    marginRight: 5,
-  },
-  textoBotonVer: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  botonEditar: {
-    backgroundColor: '#FF9800',
-    padding: 10,
-    borderRadius: 5,
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  textoBotonEditar: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  botonEliminar: {
-    backgroundColor: '#F44336',
-    padding: 10,
-    borderRadius: 5,
-    flex: 1,
-    marginLeft: 5,
-  },
-  textoBotonEliminar: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  listaVacia: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 40,
-  },
-  textoListaVacia: {
-    fontSize: 18,
-    color: '#666',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  botonAgregarPrimera: {
-    backgroundColor: '#2196F3',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 10,
-  },
-  textoBotonAgregarPrimera: {
-    color: 'white',
-    fontWeight: 'bold',
+  textoboton: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
-
-export default ListarCitas;
