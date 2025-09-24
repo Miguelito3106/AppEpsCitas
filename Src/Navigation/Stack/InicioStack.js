@@ -1,3 +1,9 @@
+import PacientesStack from "./PacientesStack";
+import CitasStack from "./CitasStack";
+import ConsultoriosStack from "./ConsultoriosStack"
+import HorariosMedicosStack from "./HorariosMedicosStack"
+import MedicosStack from "./MedicosStack"
+
 const Stack = createNativeStackNavigator();
 
 export default function InicioStack() {
@@ -10,27 +16,27 @@ export default function InicioStack() {
             />
             <Stack.Screen
                 name="Citas"
-                component={Categorias}
+                component={CitasStack}
                 options={{ title: "Citas" }}
             />
             <Stack.Screen
                 name="Consultorios"
-                component={Cita}
+                component={ConsultoriosStack}
                 options={{ title: "Consultorios" }}
             />
             <Stack.Screen
                 name="HorariosMedicos"
-                component={Especialistas}
+                component={HorariosMedicosStack}
                 options={{ title: "HorariosMedicos" }}
             />
             <Stack.Screen
                 name="Medicos"
-                component={ReservarCita}
+                component={MedicosStack}
                 options={{ title: "Medicos" }}
             />
             <Stack.Screen
                 name="Pacientes"
-                component={ReservarCita}
+                component={PacientesStack}
                 options={{ title: "Pacientes" }}
             />
         </Stack.Navigator>

@@ -1,8 +1,8 @@
-import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Inicio from "../../Screen/Inicio/inicio"; 
 import CitasStack from "./Stack/CitasStack"; 
 import PerfilScreen from "../../Screen/Perfil/PerfilScreen";
+import PacientesStack from "./Stack/PacientesStack";
 
 const Stack = createNativeStackNavigator();
 
@@ -32,6 +32,12 @@ export default function NavegacionPrincipal() {
       <Stack.Screen
         name="Perfil"
         component={PerfilScreen}
+        options={{ title: "Perfil de Usuario" }}
+      />
+
+      <Stack.Screen
+        name="Pacientes"
+        component={PacientesStack}
         options={{ title: "Perfil de Usuario" }}
       />
     </Stack.Navigator>
