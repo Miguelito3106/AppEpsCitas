@@ -1,7 +1,7 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import ListarCitas from "../../../Screen/Citas/listarCitas";
-import CrearCita from "../../../Screen/Citas/EditarCitas";
+import EditarCitas from "../../../Screen/Citas/EditarCitas";
 
 const Stack = createStackNavigator();
 
@@ -14,9 +14,9 @@ const CitasStack = () => {
         options={{ title: "Citas" }}
       />
       <Stack.Screen
-        name="CrearCita"
-        component={CrearCita}
-        options={{ title: "Agregar Cita" }}
+        name="EditarCitas"
+        component={EditarCitas}
+        options={{ title: "Editar citas" }}
       />
     </Stack.Navigator>
   )

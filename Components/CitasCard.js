@@ -1,68 +1,65 @@
-import {View, Text, StyleSheet,TouchableOpacity} from 'react-native';
-import {Ionicons} from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function PacientesCard({paciente, onEdit, onDelete}) {
+export default function CitasCard({ cita, onEdit, onDelete }) {
+  return (
+    <View style={styles.card}>
+      <View style={styles.infoContainer}>
+        <Text style={styles.title}>Cita #{cita.id}</Text>
+        <Text style={styles.detail}>Paciente ID: {cita.idPaciente}</Text>
+        <Text style={styles.detail}>Médico ID: {cita.idMedico}</Text>
+        <Text style={styles.detail}>Fecha: {cita.fecha_cita}</Text>
+        <Text style={styles.detail}>Hora: {cita.hora_cita}</Text>
+        <Text style={styles.detail}>Estado: {cita.estado}</Text>
+        <Text style={styles.detail}>Motivo: {cita.motivo}</Text>
+      </View>
 
-    return (
-        <View style={styles.card}>
-            <View style={styles.infoContainer}>
-                <Text style={styles.idPaciente}>{paciente.idPaciente}</Text>
-                <Text style={styles.detail}>idMedico: {paciente.idMedico}</Text>
-                <Text style={styles.detail}>fecha_cita: {paciente.fecha_cita}</Text>
-                <Text style={styles.detail}>hora_cita: {paciente.hora_cita}</Text>
-                <Text style={styles.detail}>estado: {paciente.estado}</Text>
-                <Text style={styles.detail}>motivo: {paciente.motivo}</Text>
-        </View>    
-        <View style={styles.actions}>
-            <TouchableOpacity onPress={onEdit} style={styles.actionButton}>
-                <Ionicons name="pencil" size={24} color="blue" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onDelete} style={styles.actionButton}>
-                <Ionicons name="trash" size={24} color="red" />
-            </TouchableOpacity>
-        </View>    
+      <View style={styles.actions}>
+        <TouchableOpacity onPress={onEdit} style={styles.actionButton}>
+          <Ionicons name="pencil" size={22} color="blue" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onDelete} style={styles.actionButton}>
+          <Ionicons name="trash" size={22} color="red" />
+        </TouchableOpacity>
+      </View>
     </View>
-    );
-
+  );
 }
 
 const styles = StyleSheet.create({
-    card: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        padding: 16,
-        marginVertical: 8,
-        marginHorizontal: 16,
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-},
-    info: {
-        flex: 1,
-},
-    nombre: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 4,
-},
-    detalle: {
-        fontSize: 14,
-        color: '#555',  
-    },
-    botonCrear: {
-        backgroundColor: '#28a745',
-        padding: 12,
-        borderRadius: 8,
-    }, 
-    textoBoton: {
-        color: '#fff',
-        fontSize: 16,
-    }
-
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  infoContainer: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 6,
+  },
+  detail: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 2,
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
+    marginLeft: 12,
+  },
 });
-

@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { listarMedicos as listarMedicosService, eliminarMedico } from "../../Src/Services/MedicosService";
+import { listarMedicos, eliminarMedico } from "../../Src/Services/MedicosService";
 import { useNavigation } from "@react-navigation/native";
 import MedicosCard from "../../Components/MedicosCard";
 
@@ -20,8 +20,8 @@ export default function ListarMedicos() {
   const handleMedicos = async () => {
     setLoading(true);
     try {
-      const result = await listarMedicosService();
-      if (result.succes) {
+      const result = await listarMedicos();
+      if (result.success) {   
         setMedicos(result.data);
       } else {
         Alert.alert("Error", result.message || "Error al cargar Médicos");
@@ -43,7 +43,7 @@ export default function ListarMedicos() {
   };
 
   const handleCrearMedicos = () => {
-    navigation.navigate("AgregarMedico");
+    navigation.navigate("EditarMedicos");
   };
 
   const handleEliminar = (id) => {
@@ -55,7 +55,7 @@ export default function ListarMedicos() {
         onPress: async () => {
           try {
             const result = await eliminarMedico(id);
-            if (result.succes) {
+            if (result.success) {  
               handleMedicos();
             } else {
               Alert.alert("Error", result.message || "Error al eliminar médico");

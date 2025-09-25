@@ -11,11 +11,11 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { crearMedico, editarMedico } from '../../Src/Services/MedicosService';
 
-export default function EditarMedicoScreen() {   // 🔥 Nombre cambiado
+export default function EditarMedico() {  
   const navigation = useNavigation();
   const route = useRoute();
 
-  const paciente = route.params?.paciente || null;
+  const paciente = route.params?.paciente;
 
   const [nombre, setNombre] = useState(paciente ? paciente.nombre : '');
   const [apellido, setApellido] = useState(paciente ? String(paciente.apellido) : '');
@@ -52,7 +52,7 @@ export default function EditarMedicoScreen() {   // 🔥 Nombre cambiado
         });
       }
 
-      if (result.success) {   // 🔥 corregido
+      if (result.success) {   
         Alert.alert('Éxito', `Médico ${esEdicion ? 'editado' : 'creado'} exitosamente.`);
         navigation.goBack();
       } else {
@@ -140,14 +140,14 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  button: {  // 🔥 corregido
+  button: { 
     backgroundColor: "#2563EB",
     padding: 16,
     borderRadius: 10,
     alignItems: "center",
     marginTop: 10,
   },
-  buttonText: {  // 🔥 corregido
+  buttonText: {  
     color: "#FFF",
     fontWeight: "bold",
     fontSize: 16,

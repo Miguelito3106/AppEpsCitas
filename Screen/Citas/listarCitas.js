@@ -1,8 +1,16 @@
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from 'react-native'
-import { listarCitas, EliminarCita } from '../../Src/Services/CitasService'
-import { useNavigation } from '@react-navigation/native'
-import CitasCard from '../../Components/CitasCard'
-import { useEffect, useState } from 'react'
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  TouchableOpacity, 
+  ActivityIndicator, 
+  Alert, 
+  StyleSheet 
+} from 'react-native';
+import { listarCitas, EliminarCita } from '../../Src/Services/CitasService';
+import { useNavigation } from '@react-navigation/native';
+import CitasCard from '../../Components/CitasCard';
+import { useEffect, useState } from 'react';
 
 export default function ListarCitas() {
   const [citas, setCitas] = useState([]);
@@ -13,12 +21,15 @@ export default function ListarCitas() {
     setLoading(true);
     try {
       const result = await listarCitas();
-      if (result.succes) {
-        setCitas(result.data);
+      console.log("Respuesta API:", result);
+
+      if (result.success && result.data?.data) {
+        setCitas(result.data.data);  
       } else {
         Alert.alert("Error", result.message || "Error al cargar citas");
       }
     } catch (error) {
+      console.error(error);
       Alert.alert("Error", "No se pudieron cargar las citas");
     } finally {
       setLoading(false);
@@ -26,6 +37,7 @@ export default function ListarCitas() {
   };
 
   useEffect(() => {
+    handleCitas();
     const unsubscribe = navigation.addListener('focus', handleCitas);
     return unsubscribe;
   }, [navigation]);
@@ -35,7 +47,7 @@ export default function ListarCitas() {
   };
 
   const handleCrearCita = () => {
-    navigation.navigate('CrearCita'); // ojo: que coincida con tu Stack
+    navigation.navigate('EditarCitas'); 
   };
 
   const handleEliminar = (id) => {
@@ -50,12 +62,13 @@ export default function ListarCitas() {
           onPress: async () => {
             try {
               const result = await EliminarCita(id);
-              if (result.succes) {
+              if (result.success) {
                 setCitas(citas.filter(cita => cita.id !== id));
               } else {
                 Alert.alert("Error", result.message || "Error al eliminar la cita");
               }
             } catch (error) {
+              console.error(error);
               Alert.alert("Error", "No se pudo eliminar la cita");
             }
           }
@@ -75,8 +88,10 @@ export default function ListarCitas() {
   return (
     <View style={styles.container}>
       <FlatList
-        data={citas}  
-        keyExtractor={(item) => item.id.toString()}
+        data={citas}
+        keyExtractor={(item, index) => 
+          (item.id ? item.id.toString() : index.toString())
+        }
         renderItem={({ item }) => (
           <CitasCard
             cita={item}
@@ -87,6 +102,8 @@ export default function ListarCitas() {
         ListEmptyComponent={<Text style={styles.empty}>No hay citas disponibles.</Text>}
         contentContainerStyle={citas.length === 0 && { flex: 1, justifyContent: "center" }}
       />
+
+      {/* Botón flotante para crear cita */}
       <TouchableOpacity style={styles.botoncrear} onPress={handleCrearCita}>
         <Text style={styles.textoboton}>+ Crear Cita</Text>
       </TouchableOpacity>
@@ -111,11 +128,18 @@ const styles = StyleSheet.create({
     color: "#888",
   },
   botoncrear: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
     backgroundColor: "#007bff",
-    padding: 15,
-    borderRadius: 8,
-    margin: 20,
-    alignItems: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    elevation: 4, // sombra en Android
+    shadowColor: "#000", // sombra en iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
   },
   textoboton: {
     color: "#fff",
