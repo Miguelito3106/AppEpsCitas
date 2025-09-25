@@ -1,7 +1,7 @@
 import {View, Text, StyleSheet,TouchableOpacity} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 
-export default function PacientesCard({paciente, onEdit, onDelete}) {
+export default function MedicosCard({paciente, onEdit, onDelete}) {
 
     return (
         <View style={styles.card}>
@@ -9,8 +9,8 @@ export default function PacientesCard({paciente, onEdit, onDelete}) {
                 <Text style={styles.name}>{paciente.nombre}</Text>
                 <Text style={styles.detail}>apellido: {paciente.apellido}</Text>
                 <Text style={styles.detail}>documento: {paciente.documento}</Text>
+                <Text style={styles.detail}>email: {paciente.email}</Text>
                 <Text style={styles.detail}>telefono: {paciente.telefono}</Text>
-                <Text style={styles.detail}>genero: {paciente.fecha_genero}</Text>
         </View>    
         <View style={styles.actions}>
             <TouchableOpacity onPress={onEdit} style={styles.actionButton}>

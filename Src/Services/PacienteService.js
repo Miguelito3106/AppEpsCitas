@@ -13,7 +13,7 @@ export const listarPacientes = async () => {
 
 export const EliminarPaciente = async (id) => {
      try {
-      const response =  await api.get(`/eliminarpaciente/${id}`);
+      const response =  await api.delete(`/eliminarpacientes/${id}`);
        return { succes : true };
         
     } catch (error) {
@@ -24,7 +24,7 @@ export const EliminarPaciente = async (id) => {
 
 export const crearPaciente = async (data)=>{
     try {
-        const response = await api.post('/crearPaciente', data);
+        const response = await api.post('/crearpacientes', data);
         return { succes: true, data: response.data };
         
     } catch (error) {
@@ -35,7 +35,7 @@ export const crearPaciente = async (data)=>{
 };
 export const editarPaciente = async (id, data)=>{
     try {
-        const response = await api.post(`/editarPaciente/${id}`, data);
+        const response = await api.put(`/editarpacientes/${id}`, data);
         return { succes: true, data: response.data };
     } catch (error) {
         console.error("Error al editar paciente:", error);

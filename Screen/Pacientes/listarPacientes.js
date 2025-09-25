@@ -39,11 +39,12 @@ export default function ListarPacientes() {
     }, [navigation]);
 
     const handleEditar = (paciente) => {
+        console.log(paciente);
         navigation.navigate('EditarPacientes', { paciente });
     };
 
     const handleCrearPaciente = () => {
-        navigation.navigate('AgregarPaciente');
+        navigation.navigate('EditarPacientes');
     };
 
     const handleEliminar = (id) => {

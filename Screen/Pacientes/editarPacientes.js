@@ -7,12 +7,11 @@ export default function EditarPacientes() {
     const navigation = useNavigation();
     const route = useRoute();
 
-    const { paciente } = route.params?.paciente;
+    const paciente  = route.params?.paciente;
 
     const [nombre, setNombre] = useState(paciente ? paciente.nombre : '');
     const [apellido, setApellido] = useState(paciente ? String(paciente.apellido) : '');
     const [documento, setDocumento] = useState(paciente ? paciente.documento : '');
-    const [fecha_nacimiento, setFecha_nacimiento] = useState(paciente ? paciente.fecha_nacimiento : '');
     const [telefono, setTelefono] = useState(paciente ? paciente.telefono : '');
     const [genero, setGenero] = useState(paciente ? paciente.genero : '');
     const [loading, setLoading] = useState(false);
@@ -20,7 +19,7 @@ export default function EditarPacientes() {
     const esEdicion = !!paciente;
 
     const handleGuardar = async ()=>{
-        if (!nombre || !apellido || !documento || !fecha_nacimiento || !telefono || !genero) {
+        if (!nombre || !apellido || !documento || !telefono || !genero) {
             Alert.alert('Error', 'Por favor, complete todos los campos.');
             return;
         }
@@ -32,12 +31,11 @@ export default function EditarPacientes() {
                      { nombre, 
                         apellido,
                          documento, 
-                         fecha_nacimiento,
                         telefono,
                          genero
                         });
             }else {
-                result = await crearPaciente({ nombre, apellido, documento, fecha_nacimiento, telefono, genero });
+                result = await crearPaciente({ nombre, apellido, documento, telefono, genero });
             }
             if (result.succes) {
                 Alert.alert('Éxito', `Paciente ${esEdicion ? 'editado' : 'creado'} exitosamente.`);
@@ -75,12 +73,6 @@ return(
                     value={documento}
                     onChangeText={setDocumento}
                     keyboardType="numeric"
-                    />
-                <TextInput
-                    style={styles.input}    
-                    placeholder="Fecha de Nacimiento (YYYY-MM-DD)"
-                    value={fecha_nacimiento}
-                    onChangeText={setFecha_nacimiento}
                     />
                 <TextInput
                     style={styles.input}
