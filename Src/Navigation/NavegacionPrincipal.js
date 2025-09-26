@@ -3,7 +3,8 @@ import Inicio from "../../Screen/Inicio/inicio";
 import CitasStack from "./Stack/CitasStack"; 
 import PerfilScreen from "../../Screen/Perfil/PerfilScreen";
 import PacientesStack from "./Stack/PacientesStack";
-import MedicosStack from "./Stack/MedicosStack"
+import MedicosStack from "./Stack/MedicosStack";
+import ConsultoriosStack from "./Stack/ConsultoriosStack"
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +45,11 @@ export default function NavegacionPrincipal() {
        <Stack.Screen
         name="Medicos"
         component={MedicosStack}
+        options={{ title: "Perfil de Usuario" }}
+      />
+       <Stack.Screen
+        name="consultorios"
+        component={ConsultoriosStack}
         options={{ title: "Perfil de Usuario" }}
       />
     </Stack.Navigator>

@@ -43,7 +43,7 @@ export default function ListarConsultorios() {
     };
 
     const handleCrearConsultorios = () => {
-        navigation.navigate('AgregarConsultorios');
+        navigation.navigate('EditarConsultorios');
     };
 
     const handleEliminar = (id) => {
@@ -59,7 +59,7 @@ export default function ListarConsultorios() {
                         try {
                             const result = await EliminarConsultorio(id);
                             if (result.succes) {
-                                handleConsultorios();
+                               setConsultorios(consultorios.filter(consultorios => consultorios.id !== id));
                             } else {
                                 Alert.alert("Error", result.message || "Error al eliminar consultorios");
                             }

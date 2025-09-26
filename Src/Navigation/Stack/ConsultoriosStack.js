@@ -5,17 +5,17 @@ import crearConsultorios from "../../Screen/Consultorios/editarConsultorios";
 
 const Stack = createStackNavigator();
 
-const PacientesStack = () => {
+const ConsultoriosStack = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Consultorios"
-        component={ListarConsultorios}
-        options={{ title: "Pacientes" }}
+        name="ListarConsultorios"
+        component={ ListarConsultorios }
+        options={{ title: "Consultorios" }}
       />
       <Stack.Screen
         name="CreaarConsultorios"
-        component={crearConsultorios}
+        component={ crearConsultorios }
         options={{ title: "Agregar Consultorios" }}
       />
 
@@ -23,4 +23,4 @@ const PacientesStack = () => {
   );
 };
 
-export default PacientesStack;
+export default ConsultoriosStack;
