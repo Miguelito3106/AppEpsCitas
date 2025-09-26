@@ -39,11 +39,11 @@ export default function ListarMedicos() {
   }, [navigation]);
 
   const handleEditar = (medico) => {
-    navigation.navigate("EditarMedicos", { medico });
+    navigation.navigate("EditarMedico", { medico });
   };
 
   const handleCrearMedicos = () => {
-    navigation.navigate("EditarMedicos");
+    navigation.navigate("EditarMedico");
   };
 
   const handleEliminar = (id) => {

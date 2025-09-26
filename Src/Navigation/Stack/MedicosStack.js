@@ -5,22 +5,20 @@ import EditarMedico from "../../../Screen/Medicos/editarMedicos";
 
 const Stack = createStackNavigator();
 
-const PacientesStack = () => {
-  return (
+const MedicosStack = () => {
+  return(
     <Stack.Navigator>
       <Stack.Screen
         name="ListarMedicos"
         component={ListarMedicos}
-        options={{ title: "Medicos" }}
+        options={{ title: "Médicos" }}
       />
       <Stack.Screen
         name="EditarMedico"
         component={EditarMedico}
-        options={{ title: "Editar Medicos " }}
+        options={{ title: "Editar Médico" }}
       />
-
     </Stack.Navigator>
-  );
-};
-
-export default PacientesStack;
+  )
+}
+export default MedicosStack;

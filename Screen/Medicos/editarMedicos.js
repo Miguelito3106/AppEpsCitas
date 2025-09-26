@@ -15,27 +15,28 @@ export default function EditarMedico() {
   const navigation = useNavigation();
   const route = useRoute();
 
-  const paciente = route.params?.paciente;
+  const medico = route.params?.medico;
 
-  const [nombre, setNombre] = useState(paciente ? paciente.nombre : '');
-  const [apellido, setApellido] = useState(paciente ? String(paciente.apellido) : '');
-  const [documento, setDocumento] = useState(paciente ? paciente.documento : '');
-  const [email, setEmail] = useState(paciente ? paciente.email : '');
-  const [telefono, setTelefono] = useState(paciente ? paciente.telefono : '');
+  const [nombre, setNombre] = useState(medico ? medico.nombre : '');
+  const [apellido, setApellido] = useState(medico ? String(medico.apellido) : '');
+  const [documento, setDocumento] = useState(medico ? medico.documento : '');
+  const [email, setEmail] = useState(medico ? medico.email : '');
+  const [telefono, setTelefono] = useState(medico ? medico.telefono : '');
   const [loading, setLoading] = useState(false);
 
-  const esEdicion = !!paciente;
+  const esEdicion = !!medico;
 
   const handleGuardar = async () => {
     if (!nombre || !apellido || !documento || !email || !telefono) {
       Alert.alert('Error', 'Por favor, complete todos los campos.');
       return;
     }
+
     setLoading(true);
     try {
       let result;
       if (esEdicion) {
-        result = await editarMedico(paciente.id, {
+        result = await editarMedico(medico.id, {
           nombre,
           apellido,
           documento,
@@ -95,6 +96,8 @@ export default function EditarMedico() {
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
         <TextInput
           style={styles.input}
