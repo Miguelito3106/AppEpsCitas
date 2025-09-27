@@ -7,9 +7,9 @@ import {
     TouchableOpacity, 
     StyleSheet 
 } from 'react-native';
-import { listarConsultorios, EliminarConsultorio } from '../../Src/Services/ConsultoriosStack';
+import { listarConsultorios, eliminarConsultorios } from '../../Src/Services/ConsultoriosService';
 import { useNavigation } from '@react-navigation/native';
-import PacientesCard from '../../Components/ConsultoriosCard';
+import ConsultoriosCard from '../../Components/ConsultoriosCard';
 import { useEffect, useState } from 'react';
 
 export default function ListarConsultorios() {
@@ -38,8 +38,8 @@ export default function ListarConsultorios() {
         return unsubscribe;
     }, [navigation]);
 
-    const handleEditar = (paciente) => {
-        navigation.navigate('EditarConsultorios', { paciente });
+    const handleEditar = (consultorio) => {
+        navigation.navigate('EditarConsultorios', { consultorio });
     };
 
     const handleCrearConsultorios = () => {
@@ -57,14 +57,14 @@ export default function ListarConsultorios() {
                     style: "destructive",
                     onPress: async () => {
                         try {
-                            const result = await EliminarConsultorio(id);
+                            const result = await eliminarConsultorios(id);
                             if (result.succes) {
-                               setConsultorios(consultorios.filter(consultorios => consultorios.id !== id));
+                               setConsultorios(consultorios.filter(consultorio => consultorio.id !== id));
                             } else {
-                                Alert.alert("Error", result.message || "Error al eliminar consultorios");
+                                Alert.alert("Error", result.message || "Error al eliminar consultorio");
                             }
                         } catch (error) {
-                            Alert.alert("Error", "No se pudo eliminar el consultorios");
+                            Alert.alert("Error", "No se pudo eliminar el consultorio");
                         }
                     }
                 }
@@ -83,11 +83,11 @@ export default function ListarConsultorios() {
     return (
         <View style={{ flex: 1 }}>
             <FlatList
-                data={pacientes}
+                data={consultorios}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <PacientesCard
-                        paciente={item}
+                    <ConsultoriosCard
+                        consultorio={item}
                         onEdit={() => handleEditar(item)}
                         onDelete={() => handleEliminar(item.id)}
                     />
@@ -95,7 +95,7 @@ export default function ListarConsultorios() {
                 ListEmptyComponent={<Text style={styles.empty}>No hay consultorios registrados.</Text>}
             />
             <TouchableOpacity style={styles.botoncrear} onPress={handleCrearConsultorios}>
-                <Text style={styles.textoboton}>Crear Consultorios</Text>
+                <Text style={styles.textoboton}>Crear Consultorio</Text>
             </TouchableOpacity>
         </View>
     );

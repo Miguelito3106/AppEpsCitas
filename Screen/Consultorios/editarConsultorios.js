@@ -1,20 +1,20 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {View, Text, TextInput, StyleSheet, TouchableOpacity,Alert,ActivityIndicator,KeyboardAvoidingView,Platform,ScrollView} from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { crearConsultorios, editarConsultorios } from '../../Src/Services/ConsultoriosStack';
+import { crearConsultorios, editarConsultorios } from '../../Src/Services/ConsultoriosService';
 
-export default function editarConsultorios() {
+export default function EditarConsultoriosScreen() {
     const navigation = useNavigation();
     const route = useRoute();
 
-    const { consultorios } = route.params?.consultorio;
+    const { consultorio } = route.params || {};
 
-    const [BloqueConsultorio, setBloqueConsultorios] = useState(consultorio ? consultori.BloqueConsultorio : '');
+    const [BloqueConsultorio, setBloqueConsultorio] = useState(consultorio ? consultorio.BloqueConsultorio : '');
     const [NumeroConsultorio, setNumeroConsultorio] = useState(consultorio ? String(consultorio.NumeroConsultorio) : '');
     const [idMedico, setIdMedico] = useState(consultorio ? consultorio.idMedico : '');
     const [loading, setLoading] = useState(false);
 
-    const esEdicion = !!paciente;
+    const esEdicion = !!consultorio;
 
     const handleGuardar = async ()=>{
         if (!BloqueConsultorio || !NumeroConsultorio || !idMedico) {
@@ -25,73 +25,82 @@ export default function editarConsultorios() {
         try {
             let result;
             if (esEdicion) {
-                result = await editarPaciente(paciente.id,
-                     { BloqueConsultorio, 
-                        NumeroConsultorio,
+                result = await editarConsultorios(consultorio.id,
+                     { 
+                         BloqueConsultorio, 
+                         NumeroConsultorio: parseInt(NumeroConsultorio),
                          idMedico, 
-                        });
-            }else {
-                result = await crearConsultorios({ BloqueConsultorio, NumeroConsultorio, idMedico,  });
+                     });
+            } else {
+                result = await crearConsultorios({ 
+                    BloqueConsultorio, 
+                    NumeroConsultorio: parseInt(NumeroConsultorio), 
+                    idMedico 
+                });
             }
             if (result.succes) {
-                Alert.alert('Éxito', `consultorio ${esEdicion ? 'editado' : 'creado'} exitosamente.`);
-                navigation.goBack(); // Volver a la pantalla anterior
+                Alert.alert('Éxito', `Consultorio ${esEdicion ? 'editado' : 'creado'} exitosamente.`);
+                navigation.goBack();
             } else {
                 Alert.alert('Error', result.message || 'Hubo un problema al guardar el consultorio.');
             }
 
-    }catch (error) {
-        Alert.alert('Error', 'Hubo un problema al guardar el consultorio.');
-    } finally {
-        setLoading(false);
+        } catch (error) {
+            Alert.alert('Error', 'Hubo un problema al guardar el consultorio.');
+        } finally {
+            setLoading(false);
+        }
     }
-}
 
-return(
-    <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.container}>
-             <Text style={styles.title}>{esEdicion ? 'Editar consultorio' : 'Crear consultorio'}</Text>
-             <TextInput
-                 style={styles.input}
-                 placeholder="BloqueConsultorio"
-                    value={nombre}
-                    onChangeText={setBloqueConsultorios}
-                    />
-                <TextInput 
-                    style={styles.input}
-                    placeholder="NumeroConsultorio"
-                    value={apellido}
-                    onChangeText={setNumeroConsultorio}
-                    />
-                <TextInput
-                    style={styles.input}
-                    placeholder="idMedico"
-                    value={documento}
-                    onChangeText={setIdMedico}
-                    keyboardType="numeric"
-                    />
-                    <TouchableOpacity style={styles.button} onPress={handleGuardar} disabled={loading}>
-                        <Text style={styles.buttonText}>{loading ? 'Guardando...' : 'Guardar'}</Text>
-                    </TouchableOpacity>
-         </View>
-
-
-    </ScrollView>
-)
-
+    return(
+        <ScrollView contentContainerStyle={styles.container}>
+            <View style={styles.innerContainer}>
+                 <Text style={styles.title}>{esEdicion ? 'Editar consultorio' : 'Crear consultorio'}</Text>
+                 <TextInput
+                     style={styles.input}
+                     placeholder="Bloque Consultorio"
+                        value={BloqueConsultorio}
+                        onChangeText={setBloqueConsultorio}
+                        />
+                    <TextInput 
+                        style={styles.input}
+                        placeholder="Número Consultorio"
+                        value={NumeroConsultorio}
+                        onChangeText={setNumeroConsultorio}
+                        keyboardType="numeric"
+                        />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="ID Médico"
+                        value={idMedico}
+                        onChangeText={setIdMedico}
+                        keyboardType="numeric"
+                        />
+                        <TouchableOpacity style={styles.button} onPress={handleGuardar} disabled={loading}>
+                            {loading ? (
+                                <ActivityIndicator color="#FFF" />
+                            ) : (
+                                <Text style={styles.buttonText}>Guardar</Text>
+                            )}
+                        </TouchableOpacity>
+             </View>
+        </ScrollView>
+    )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
+    backgroundColor: "#F2F6FF",
+  },
+  innerContainer: {
     padding: 20,
-    backgroundColor: "#F2F6FF", // fondo más suave
   },
   title: {
     fontSize: 24,
     fontWeight: "700",
     marginBottom: 20,
-    color: "#1E3A8A", // azul oscuro
+    color: "#1E3A8A",
     textAlign: "center",
   },
   input: {
@@ -102,34 +111,24 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: "#CBD5E1", // gris suave
+    borderColor: "#CBD5E1",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2, // efecto en Android
+    elevation: 2,
   },
-  boton: {
-    backgroundColor: "#2563EB", // azul vibrante
+  button: {
+    backgroundColor: "#2563EB",
     padding: 16,
     borderRadius: 10,
     alignItems: "center",
     marginTop: 10,
   },
-  textoBoton: {
+  buttonText: {
     color: "#FFF",
     fontWeight: "bold",
     fontSize: 16,
     letterSpacing: 0.5,
-  },
-  label: {
-    fontSize: 14,
-    color: "#475569", // gris medio
-    marginBottom: 6,
-  },
-  errorText: {
-    fontSize: 12,
-    color: "#DC2626", // rojo para errores
-    marginBottom: 8,
   },
 });

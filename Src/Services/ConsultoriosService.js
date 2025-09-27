@@ -2,8 +2,8 @@ import api from './conexion';
 
 export const listarConsultorios = async () => {
     try {
-       const response =  await api.get('/listarconsultorios');
-       return { succes : true, data: response.data };
+       const response = await api.get('/listarconsultorios');
+       return { succes: true, data: response.data };
         
     } catch (error) {
         console.error("Error al listar consultorios:", error);
@@ -11,14 +11,14 @@ export const listarConsultorios = async () => {
     }
 }
 
-export const eliminarconsultorios = async (id) => {
+export const eliminarConsultorios = async (id) => {
      try {
-      const response =  await api.get(`/eliminarconsultorios/${id}`);
-       return { succes : true };
+      const response = await api.get(`/eliminarconsultorios/${id}`);
+       return { succes: true };
         
     } catch (error) {
         console.error("Error al eliminar consultorios:", error);
-        return { succes: false, message: 'Error al listar consultorios' };
+        return { succes: false, message: 'Error al eliminar consultorios' };
     }
 }
 
@@ -33,6 +33,7 @@ export const crearConsultorios = async (data)=>{
         
     }
 };
+
 export const editarConsultorios = async (id, data)=>{
     try {
         const response = await api.post(`/editarconsultorios/${id}`, data);

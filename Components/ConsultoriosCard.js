@@ -1,7 +1,7 @@
 import {View, Text, StyleSheet,TouchableOpacity} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 
-export default function PacientesCard({consultorio, onEdit, onDelete}) {
+export default function ConsultoriosCard({consultorio, onEdit, onDelete}) {
 
     return (
         <View style={styles.card}>
@@ -21,7 +21,6 @@ export default function PacientesCard({consultorio, onEdit, onDelete}) {
         </View>    
     </View>
     );
-
 }
 
 const styles = StyleSheet.create({
@@ -39,28 +38,24 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-},
-    info: {
+    },
+    infoContainer: {
         flex: 1,
-},
-    nombre: {
+    },
+    name: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 4,
-},
-    detalle: {
+    },
+    detail: {
         fontSize: 14,
         color: '#555',  
     },
-    botonCrear: {
-        backgroundColor: '#28a745',
-        padding: 12,
-        borderRadius: 8,
-    }, 
-    textoBoton: {
-        color: '#fff',
-        fontSize: 16,
+    actions: {
+        flexDirection: 'row',
+    },
+    actionButton: {
+        marginLeft: 12,
+        padding: 8,
     }
-
 });
-
