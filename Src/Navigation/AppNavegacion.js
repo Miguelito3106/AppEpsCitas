@@ -5,16 +5,25 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState, useRef } from "react"
 import { AppState, View, ActivityIndicator } from "react-native"
 
-// Componente Text seguro para web
+// Componente Text seguro para web - MEJORADO
 const SafeText = ({ children, style }) => {
-  return React.createElement('span', { 
-    style: {
-      fontFamily: 'System',
-      fontSize: 14,
-      color: '#666',
-      ...style
-    }
-  }, children);
+  // Verificar si estamos en web o móvil
+  const isWeb = typeof document !== 'undefined';
+  
+  if (isWeb) {
+    return React.createElement('span', { 
+      style: {
+        fontFamily: 'System, -apple-system, sans-serif',
+        fontSize: 14,
+        color: '#666',
+        ...style
+      }
+    }, children);
+  } else {
+    // En móvil, usar el Text nativo de React Native
+    const { Text } = require('react-native');
+    return <Text style={[{ fontSize: 14, color: '#666' }, style]}>{children}</Text>;
+  }
 };
 
 export default function AppNavegacion() {
@@ -28,7 +37,7 @@ export default function AppNavegacion() {
       // await AsyncStorage.removeItem("userToken");
       
       const token = await AsyncStorage.getItem("userToken");
-      console.log("Token cargado:", token);
+      console.log("Token cargado:", token ? "SÍ" : "NO");
       setUserToken(token);
     } catch (error) {
       console.error("Error al cargar el token:", error);
@@ -43,7 +52,7 @@ export default function AppNavegacion() {
     loadToken();
   }, []);
 
-  // Se ejecuta cuando hay cambio de estado de la app 
+  // Se ejecuta cuando hay cambio de estado de la app - CORREGIDO
   useEffect(() => {
     const handleAppStateChange = (nextAppState) => {
       if (appState.current.match(/inactive|background/) && nextAppState === "active") {
@@ -53,15 +62,30 @@ export default function AppNavegacion() {
       appState.current = nextAppState;
     };
 
-    const subscription = AppState.addEventListener("change", handleAppStateChange);
-    return () => subscription.remove();
+    // Manejo compatible con diferentes versiones de React Native
+    let subscription;
+    if (AppState.addEventListener) {
+      // Versiones más recientes
+      subscription = AppState.addEventListener("change", handleAppStateChange);
+    } else {
+      // Versiones más antiguas (backward compatibility)
+      subscription = AppState.addEventListener("change", handleAppStateChange);
+    }
+    
+    return () => {
+      if (subscription?.remove) {
+        subscription.remove();
+      } else if (AppState.removeEventListener) {
+        // Fallback para versiones antiguas
+        AppState.removeEventListener("change", handleAppStateChange);
+      }
+    };
   }, []);
 
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#007BFF" />
-        {/* Usar SafeText en lugar de Text para evitar errores en web */}
         <SafeText style={{ marginTop: 10 }}>Cargando...</SafeText>
       </View>
     );

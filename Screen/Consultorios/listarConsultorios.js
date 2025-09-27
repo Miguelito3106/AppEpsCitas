@@ -17,7 +17,7 @@ export default function ListarConsultorios() {
     const navigation = useNavigation();
     const [loading, setLoading] = useState(true);
 
-    const handleConsultorios = async () => {
+    const loadConsultorios = async () => {
         setLoading(true);
         try {
             const result = await listarConsultorios();
@@ -34,7 +34,7 @@ export default function ListarConsultorios() {
     };
 
     useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', handleConsultorios);
+        const unsubscribe = navigation.addListener('focus', loadConsultorios);
         return unsubscribe;
     }, [navigation]);
 
@@ -42,7 +42,7 @@ export default function ListarConsultorios() {
         navigation.navigate('EditarConsultorios', { consultorio });
     };
 
-    const handleCrearConsultorios = () => {
+    const handleCrearConsultorio = () => {
         navigation.navigate('EditarConsultorios');
     };
 
@@ -59,7 +59,7 @@ export default function ListarConsultorios() {
                         try {
                             const result = await eliminarConsultorios(id);
                             if (result.succes) {
-                               setConsultorios(consultorios.filter(consultorio => consultorio.id !== id));
+                                setConsultorios(consultorios.filter(consultorio => consultorio.id !== id));
                             } else {
                                 Alert.alert("Error", result.message || "Error al eliminar consultorio");
                             }
@@ -81,10 +81,10 @@ export default function ListarConsultorios() {
     }
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
             <FlatList
                 data={consultorios}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
                 renderItem={({ item }) => (
                     <ConsultoriosCard
                         consultorio={item}
@@ -92,16 +92,21 @@ export default function ListarConsultorios() {
                         onDelete={() => handleEliminar(item.id)}
                     />
                 )}
-                ListEmptyComponent={<Text style={styles.empty}>No hay consultorios registrados.</Text>}
+                ListEmptyComponent={
+                    <Text style={styles.empty}>No hay consultorios registrados.</Text>
+                }
             />
-            <TouchableOpacity style={styles.botoncrear} onPress={handleCrearConsultorios}>
-                <Text style={styles.textoboton}>Crear Consultorio</Text>
+            <TouchableOpacity style={styles.botonCrear} onPress={handleCrearConsultorio}>
+                <Text style={styles.textoBoton}>Crear Consultorio</Text>
             </TouchableOpacity>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
     centered: {
         flex: 1,
         justifyContent: "center",
@@ -113,14 +118,14 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#888",
     },
-    botoncrear: {
+    botonCrear: {
         backgroundColor: "#007bff",
         padding: 15,
         borderRadius: 8,
         margin: 20,
         alignItems: "center",
     },
-    textoboton: {
+    textoBoton: {
         color: "#fff",
         fontSize: 16,
         fontWeight: "bold",
