@@ -34,25 +34,17 @@ export default function ListarHorariosMedicos() {
     };
 
     useEffect(() => {
-        handleHorarios();
-    }, []);
-
-    useEffect(() => {
         const unsubscribe = navigation.addListener('focus', handleHorarios);
         return unsubscribe;
     }, [navigation]);
 
-    const handleEditar = (horario) => {
-        navigation.navigate('HorariosMedicosStack', {
-            screen: 'EditarHorariosMedicos',
-            params: { horario }
-        });
+    const handleEditar = (horarios) => {
+        console.log(horarios);
+        navigation.navigate('actualizarHorariosMedicos', { horarios });
     };
 
-    const handleCrearHorario = () => {
-        navigation.navigate('HorariosMedicosStack', {
-            screen: 'EditarHorariosMedicos'
-        });
+     const handleCrearHorario = () => {
+        navigation.navigate('actualizarHorariosMedicos');
     };
 
     const handleEliminar = (id) => {
