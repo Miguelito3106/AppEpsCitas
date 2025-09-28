@@ -21,7 +21,8 @@ export default function ListarConsultorios() {
         setLoading(true);
         try {
             const result = await listarConsultorios();
-            if (result.succes) {
+            // CORRECCIÓN: Cambiar result.succes por result.success
+            if (result.success) {
                 setConsultorios(result.data);
             } else {
                 Alert.alert("Error", result.message || "Error al cargar consultorios");
@@ -58,7 +59,8 @@ export default function ListarConsultorios() {
                     onPress: async () => {
                         try {
                             const result = await eliminarConsultorios(id);
-                            if (result.succes) {
+                            // CORRECCIÓN: Cambiar result.succes por result.success
+                            if (result.success) {
                                 setConsultorios(consultorios.filter(consultorio => consultorio.id !== id));
                             } else {
                                 Alert.alert("Error", result.message || "Error al eliminar consultorio");

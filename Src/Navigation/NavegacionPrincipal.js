@@ -48,7 +48,7 @@ export default function NavegacionPrincipal() {
         options={{ title: "Perfil de Usuario" }}
       />
        <Stack.Screen
-        name="consultorios"
+        name="Consultorios"
         component={ConsultoriosStack}
         options={{ title: "Perfil de Usuario" }}
       />

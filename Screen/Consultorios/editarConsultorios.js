@@ -3,51 +3,82 @@ import {View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndi
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { crearConsultorios, editarConsultorios } from '../../Src/Services/ConsultoriosService';
 
-export default function EditarConsultoriosScreen() {
+export default function EditarConsultorios() {
     const navigation = useNavigation();
     const route = useRoute();
 
-    const { consultorio } = route.params || {};
+    const consultorio = route.params?.consultorio;
 
     const [BloqueConsultorio, setBloqueConsultorio] = useState(consultorio ? consultorio.BloqueConsultorio : '');
     const [NumeroConsultorio, setNumeroConsultorio] = useState(consultorio ? String(consultorio.NumeroConsultorio) : '');
-    const [idMedico, setIdMedico] = useState(consultorio ? consultorio.idMedico : '');
+    const [idMedico, setIdMedico] = useState(consultorio ? String(consultorio.idMedico) : '');
     const [loading, setLoading] = useState(false);
 
     const esEdicion = !!consultorio;
 
     const handleGuardar = async () => {
-        if (!BloqueConsultorio || !NumeroConsultorio || !idMedico) {
-            Alert.alert('Error', 'Por favor, complete todos los campos.');
+        // Validación de campos vacíos
+        if (!BloqueConsultorio?.trim()) {
+            Alert.alert('Error', 'Por favor, ingrese el bloque del consultorio.');
+            return;
+        }
+        if (!NumeroConsultorio?.trim()) {
+            Alert.alert('Error', 'Por favor, ingrese el número del consultorio.');
+            return;
+        }
+        if (!idMedico?.trim()) {
+            Alert.alert('Error', 'Por favor, ingrese el ID del médico.');
+            return;
+        }
+
+        // Validación numérica solo para idMedico
+        const idMedicoNumero = parseInt(idMedico);
+        
+        if (isNaN(idMedicoNumero) || idMedicoNumero <= 0) {
+            Alert.alert('Error', 'El ID del médico debe ser un número válido mayor a 0.');
             return;
         }
         
         setLoading(true);
         try {
+            // Preparar datos - IMPORTANTE: NumeroConsultorio como STRING
+            const datosAEnviar = {
+                BloqueConsultorio: BloqueConsultorio.trim(),
+                NumeroConsultorio: NumeroConsultorio.trim(), // MANTENER como string
+                idMedico: idMedicoNumero
+            };
+
+            console.log('🔍 Datos a enviar:', datosAEnviar);
+
             let result;
             if (esEdicion) {
-                result = await editarConsultorios(consultorio.id, { 
-                    BloqueConsultorio, 
-                    NumeroConsultorio: parseInt(NumeroConsultorio),
-                    idMedico, 
-                });
+                result = await editarConsultorios(consultorio.id, datosAEnviar);
             } else {
-                result = await crearConsultorios({ 
-                    BloqueConsultorio, 
-                    NumeroConsultorio: parseInt(NumeroConsultorio), 
-                    idMedico 
-                });
+                result = await crearConsultorios(datosAEnviar);
             }
             
-            if (result.succes) {
+            console.log('📨 Resultado del servicio:', result);
+            
+            if (result.success) {
                 Alert.alert('Éxito', `Consultorio ${esEdicion ? 'editado' : 'creado'} exitosamente.`);
                 navigation.goBack();
             } else {
-                Alert.alert('Error', result.message || 'Hubo un problema al guardar el consultorio.');
+                // Mostrar el mensaje de error de forma legible
+                try {
+                    const errorData = JSON.parse(result.message);
+                    let mensajeError = 'Errores:\n';
+                    Object.keys(errorData).forEach(key => {
+                        mensajeError += `• ${errorData[key].join(', ')}\n`;
+                    });
+                    Alert.alert('Error de Validación', mensajeError);
+                } catch {
+                    Alert.alert('Error', result.message || 'Hubo un problema al guardar el consultorio.');
+                }
             }
 
         } catch (error) {
-            Alert.alert('Error', 'Hubo un problema al guardar el consultorio.');
+            console.error('💥 Error en handleGuardar:', error);
+            Alert.alert('Error', 'Hubo un problema inesperado al guardar el consultorio.');
         } finally {
             setLoading(false);
         }
@@ -62,22 +93,22 @@ export default function EditarConsultoriosScreen() {
                 
                 <TextInput
                     style={styles.input}
-                    placeholder="Bloque Consultorio"
+                    placeholder="Bloque Consultorio (ej: A1)"
                     value={BloqueConsultorio}
                     onChangeText={setBloqueConsultorio}
                 />
                 
                 <TextInput 
                     style={styles.input}
-                    placeholder="Número Consultorio"
+                    placeholder="Número Consultorio (ej: 101)"
                     value={NumeroConsultorio}
                     onChangeText={setNumeroConsultorio}
-                    keyboardType="numeric"
+                    keyboardType="numeric" // Puedes mantener numeric, pero se enviará como string
                 />
                 
                 <TextInput
                     style={styles.input}
-                    placeholder="ID Médico"
+                    placeholder="ID Médico (número)"
                     value={idMedico}
                     onChangeText={setIdMedico}
                     keyboardType="numeric"
