@@ -25,7 +25,7 @@ export default function Inicio({ navigation }) {
     { title: 'Médicos', icon: 'local-hospital', route: 'Medicos' },
     { title: 'Citas', icon: 'event', route: 'Citas' },
     { title: 'Consultorios', icon: 'business', route: 'Consultorios' },
-    { title: 'Horarios Médicos', icon: 'schedule', route: 'HorariosMedicos' }
+    { title: 'Horarios Médicos', icon: 'schedule', route: 'HorariosMedicosStack' }
   ];
 
   const statsData = [

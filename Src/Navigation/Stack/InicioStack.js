@@ -1,6 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Inicio from '../../../Screen/Inicio/inicio'; // Ajusta la ruta según tu proyecto
+import Inicio from '../../../Screen/Inicio/inicio';
 import PacientesStack from "./PacientesStack";
 import CitasStack from "./CitasStack";
 import ConsultoriosStack from "./ConsultoriosStack";
@@ -23,10 +23,14 @@ export default function InicioStack() {
                 options={{ title: "Inicio" }}
             />
             <Stack.Screen
-                name="HorariosMedicosStack"
-                component={HorariosMedicosStack}
-                options={{ title: "Horarios Médicos" }}
-              
+                name="PacientesStack"
+                component={PacientesStack}
+                options={{ title: "Pacientes" }}
+            />
+            <Stack.Screen
+                name="MedicosStack"
+                component={MedicosStack}
+                options={{ title: "Médicos" }}
             />
             <Stack.Screen
                 name="CitasStack"
@@ -39,14 +43,9 @@ export default function InicioStack() {
                 options={{ title: "Consultorios" }}
             />
             <Stack.Screen
-                name="MedicosStack"
-                component={MedicosStack}
-                options={{ title: "Médicos" }}
-            />
-            <Stack.Screen
-                name="PacientesStack"
-                component={PacientesStack}
-                options={{ title: "Pacientes" }}
+                name="HorariosMedicosStack"
+                component={HorariosMedicosStack}
+                options={{ title: "Horarios Médicos" }}
             />
         </Stack.Navigator>
     );

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { crearHorariosMedicos, actualizarHorariosMedicos } from '../../Src/Services/HorariosMedicosService'; // Cambiado el import
+import { crearHorariosMedicos, editarHorariosMedicos } from '../../Src/Services/HorariosMedicosService';
 
-export default function EditarHorariosMedicos() {
+export default function EditarHorariosMedicosScreen() {
     const navigation = useNavigation();
     const route = useRoute();
     const horarioEditar = route.params?.horario;
@@ -15,7 +15,7 @@ export default function EditarHorariosMedicos() {
     const [loading, setLoading] = useState(false);
 
     const handleGuardar = async () => {
-        if (!medicoId || !diaSemana || !horaInicio || !horaFin) {
+        if (!medicoId.trim() || !diaSemana.trim() || !horaInicio.trim() || !horaFin.trim()) {
             Alert.alert('Error', 'Todos los campos son obligatorios');
             return;
         }
@@ -27,28 +27,29 @@ export default function EditarHorariosMedicos() {
 
         setLoading(true);
         try {
-            let result;
             const data = {
                 medico_id: parseInt(medicoId),
                 dia_semana: diaSemana,
                 hora_inicio: horaInicio,
-                hora_fin: horaFin
+                hora_fin: horaFin,
             };
 
+            let result;
             if (horarioEditar) {
-                result = await actualizarHorariosMedicos(horarioEditar.id, data);
+                result = await editarHorariosMedicos(horarioEditar.id, data);
             } else {
                 result = await crearHorariosMedicos(data);
             }
-            
-            if (result.success) { // Cambiado de 'succes' a 'success'
+
+            if (result?.success) {
                 Alert.alert('Éxito', horarioEditar ? 'Horario actualizado' : 'Horario creado', [
-                    { text: 'OK', onPress: () => navigation.goBack() }
+                    { text: 'OK', onPress: () => navigation.goBack() },
                 ]);
             } else {
-                Alert.alert('Error', result.message || 'Ocurrió un error');
+                Alert.alert('Error', result?.message || 'Ocurrió un error al guardar el horario');
             }
         } catch (error) {
+            console.error(error);
             Alert.alert('Error', 'No se pudo guardar el horario');
         } finally {
             setLoading(false);

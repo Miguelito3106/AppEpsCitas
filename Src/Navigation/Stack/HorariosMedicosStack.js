@@ -14,7 +14,7 @@ const HorariosMedicosStack = () => {
         options={{ title: "Horario Medicos" }}
       />
       <Stack.Screen
-        name="actualizarHorariosMedicos"
+        name="EditarHorariosMedicos"
         component={ EditarHorariosMedicos }
         options={{ title: "Editar Médico" }}
       />

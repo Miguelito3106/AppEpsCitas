@@ -40,11 +40,11 @@ export default function ListarHorariosMedicos() {
 
     const handleEditar = (horarios) => {
         console.log(horarios);
-        navigation.navigate('actualizarHorariosMedicos', { horarios });
+        navigation.navigate('editarHorariosMedicos', { horarios });
     };
 
      const handleCrearHorario = () => {
-        navigation.navigate('actualizarHorariosMedicos');
+        navigation.navigate('editarHorariosMedicos');
     };
 
     const handleEliminar = (id) => {
