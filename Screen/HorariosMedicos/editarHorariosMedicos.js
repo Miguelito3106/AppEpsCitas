@@ -1,32 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { crearHorariosMedicos, actualizarHorariosMedicos } from '../../Src/Services/MedicosServiceService';
+import { crearHorariosMedicos, actualizarHorariosMedicos } from '../../Src/Services/HorariosMedicosService'; // Cambiado el import
 
 export default function EditarHorariosMedicos() {
     const navigation = useNavigation();
     const route = useRoute();
     const horarioEditar = route.params?.horario;
 
-    const [dia, setDia] = useState(horarioEditar?.dia || '');
+    const [medicoId, setMedicoId] = useState(horarioEditar?.medico_id?.toString() || '');
+    const [diaSemana, setDiaSemana] = useState(horarioEditar?.dia_semana || '');
     const [horaInicio, setHoraInicio] = useState(horarioEditar?.hora_inicio || '');
     const [horaFin, setHoraFin] = useState(horarioEditar?.hora_fin || '');
     const [loading, setLoading] = useState(false);
 
     const handleGuardar = async () => {
-        if (!dia || !horaInicio || !horaFin) {
+        if (!medicoId || !diaSemana || !horaInicio || !horaFin) {
             Alert.alert('Error', 'Todos los campos son obligatorios');
             return;
         }
+
+        if (horaFin <= horaInicio) {
+            Alert.alert('Error', 'La hora de fin debe ser posterior a la hora de inicio');
+            return;
+        }
+
         setLoading(true);
         try {
             let result;
+            const data = {
+                medico_id: parseInt(medicoId),
+                dia_semana: diaSemana,
+                hora_inicio: horaInicio,
+                hora_fin: horaFin
+            };
+
             if (horarioEditar) {
-                result = await actualizarHorariosMedicos(horarioEditar.id, { dia, hora_inicio: horaInicio, hora_fin: horaFin });
+                result = await actualizarHorariosMedicos(horarioEditar.id, data);
             } else {
-                result = await crearHorariosMedicos({ dia, hora_inicio: horaInicio, hora_fin: horaFin });
+                result = await crearHorariosMedicos(data);
             }
-            if (result.succes) {
+            
+            if (result.success) { // Cambiado de 'succes' a 'success'
                 Alert.alert('Éxito', horarioEditar ? 'Horario actualizado' : 'Horario creado', [
                     { text: 'OK', onPress: () => navigation.goBack() }
                 ]);
@@ -42,27 +57,39 @@ export default function EditarHorariosMedicos() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Día</Text>
+            <Text style={styles.label}>ID Médico</Text>
             <TextInput
                 style={styles.input}
-                value={dia}
-                onChangeText={setDia}
-                placeholder="Ej: Lunes"
+                value={medicoId}
+                onChangeText={setMedicoId}
+                placeholder="Ej: 1"
+                keyboardType="numeric"
             />
+
+            <Text style={styles.label}>Día de la Semana</Text>
+            <TextInput
+                style={styles.input}
+                value={diaSemana}
+                onChangeText={setDiaSemana}
+                placeholder="Ej: Lunes, Martes, etc."
+            />
+
             <Text style={styles.label}>Hora de Inicio</Text>
             <TextInput
                 style={styles.input}
                 value={horaInicio}
                 onChangeText={setHoraInicio}
-                placeholder="Ej: 08:00"
+                placeholder="HH:MM (24h)"
             />
+
             <Text style={styles.label}>Hora de Fin</Text>
             <TextInput
                 style={styles.input}
                 value={horaFin}
                 onChangeText={setHoraFin}
-                placeholder="Ej: 12:00"
+                placeholder="HH:MM (24h)"
             />
+
             <TouchableOpacity style={styles.boton} onPress={handleGuardar} disabled={loading}>
                 {loading ? (
                     <ActivityIndicator color="#fff" />

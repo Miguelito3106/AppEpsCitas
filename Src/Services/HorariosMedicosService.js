@@ -1,44 +1,41 @@
 import api from './conexion';
 
-export const ListarHorariosMedicos = async () => {
+export const listarHorariosMedicos = async () => {
     try {
-       const response =  await api.get('/listarhorarios');
-       return { succes : true, data: response.data };
-        
+       const response = await api.get('/horarios-medicos');
+       return { success: true, data: response.data };
     } catch (error) {
-        console.error("Error al listar pacientes:", error);
-        return { succes: false, message: 'Error al listar pacientes' };
+        console.error("Error al listar horarios:", error);
+        return { success: false, message: 'Error al listar horarios' };
     }
 }
 
 export const eliminarHorariosMedicos = async (id) => {
      try {
-      const response =  await api.delete(`/eliminarhorarios/${id}`);
-       return { succes : true };
-        
+      await api.delete(`/horarios-medicos/${id}`);
+       return { success: true };
     } catch (error) {
-        console.error("Error al eliminar pacientes:", error);
-        return { succes: false, message: 'Error al listar pacientes' };
+        console.error("Error al eliminar horario:", error);
+        return { success: false, message: 'Error al eliminar horario' };
     }
 }
 
-export const crearHorariosMedicos = async (data)=>{
+export const crearHorariosMedicos = async (data) => {
     try {
-        const response = await api.post('/crearhorarios', data);
-        return { succes: true, data: response.data };
-        
+        const response = await api.post('/horarios-medicos', data);
+        return { success: true, data: response.data };
     } catch (error) {
-        console.error("Error al crear paciente:", error);
-        return { succes: false, message: 'Error al crear paciente' };
-        
+        console.error("Error al crear horario:", error);
+        return { success: false, message: 'Error al crear horario' };
     }
 };
-export const EditarHorariosMedicos = async (id, data)=>{
+
+export const actualizarHorariosMedicos = async (id, data) => {
     try {
-        const response = await api.put(`/editarhorarios/${id}`, data);
-        return { succes: true, data: response.data };
+        const response = await api.put(`/horarios-medicos/${id}`, data);
+        return { success: true, data: response.data };
     } catch (error) {
-        console.error("Error al editar paciente:", error);
-        return { succes: false, message: 'Error al editar paciente' };
+        console.error("Error al editar horario:", error);
+        return { success: false, message: 'Error al editar horario' };
     }
 };

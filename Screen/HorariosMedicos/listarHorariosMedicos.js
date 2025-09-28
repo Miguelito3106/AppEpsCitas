@@ -7,7 +7,7 @@ import {
     TouchableOpacity, 
     StyleSheet 
 } from 'react-native';
-import { listarHorariosMedicos, eliminarHorariosMedicos } from '../../Src/Services/MedicosServiceService';
+import { listarHorariosMedicos, eliminarHorariosMedicos } from '../../Src/Services/HorariosMedicosService';
 import { useNavigation } from '@react-navigation/native';
 import HorariosMedicosCard from '../../Components/HorariosMedicosCard';
 import { useEffect, useState } from 'react';
@@ -21,7 +21,7 @@ export default function ListarHorariosMedicos() {
         setLoading(true);
         try {
             const result = await listarHorariosMedicos();
-            if (result.succes) {
+            if (result.success) {
                 setHorarios(result.data);
             } else {
                 Alert.alert("Error", result.message || "Error al cargar horarios");
@@ -34,16 +34,25 @@ export default function ListarHorariosMedicos() {
     };
 
     useEffect(() => {
+        handleHorarios();
+    }, []);
+
+    useEffect(() => {
         const unsubscribe = navigation.addListener('focus', handleHorarios);
         return unsubscribe;
     }, [navigation]);
 
     const handleEditar = (horario) => {
-        navigation.navigate('EditarHorariosMedicos', { horario });
+        navigation.navigate('HorariosMedicosStack', {
+            screen: 'EditarHorariosMedicos',
+            params: { horario }
+        });
     };
 
     const handleCrearHorario = () => {
-        navigation.navigate('EditarHorariosMedicos');
+        navigation.navigate('HorariosMedicosStack', {
+            screen: 'EditarHorariosMedicos'
+        });
     };
 
     const handleEliminar = (id) => {
@@ -58,7 +67,7 @@ export default function ListarHorariosMedicos() {
                     onPress: async () => {
                         try {
                             const result = await eliminarHorariosMedicos(id);
-                            if (result.succes) {
+                            if (result.success) {
                                 handleHorarios();
                             } else {
                                 Alert.alert("Error", result.message || "Error al eliminar horario");

@@ -4,9 +4,13 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 export default function HorariosMedicosCard({ horario, onEdit, onDelete }) {
     return (
         <View style={styles.card}>
-            <Text style={styles.dia}>{horario.dia}</Text>
+            <Text style={styles.dia}>Día: {horario.dia_semana}</Text>
+            <Text>Médico ID: {horario.medico_id}</Text>
             <Text>Inicio: {horario.hora_inicio}</Text>
             <Text>Fin: {horario.hora_fin}</Text>
+            {horario.medico && (
+                <Text>Médico: {horario.medico.nombre}</Text>
+            )}
             <View style={styles.actions}>
                 <TouchableOpacity style={styles.edit} onPress={onEdit}>
                     <Text style={styles.textBtn}>Editar</Text>
