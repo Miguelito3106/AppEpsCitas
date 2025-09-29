@@ -19,6 +19,11 @@ const { width, height } = Dimensions.get('window');
 export default function Inicio({ navigation }) {
   const [selectedMenu, setSelectedMenu] = useState('Dashboard');
   
+  // Agregar para debuggear
+  console.log('🔍 Inicio component mounted');
+  console.log('📞 Navigation object:', navigation ? '✅ Disponible' : '❌ No disponible');
+  console.log('📍 Navigation.navigate:', navigation?.navigate ? '✅ Disponible' : '❌ No disponible');
+
   const menuItems = [
     { title: 'Dashboard', icon: 'dashboard', route: 'Dashboard' },
     { title: 'Pacientes', icon: 'people', route: 'Pacientes' },
@@ -56,11 +61,39 @@ export default function Inicio({ navigation }) {
   }, []);
 
   const handleMenuPress = (item) => {
+    console.log(`📍 Menú presionado: ${item.title}, Ruta: ${item.route}`);
+    
     if (item.route === 'Dashboard') {
       setSelectedMenu(item.title);
-    } else {
-      navigation.navigate(item.route);
+      return;
     }
+
+    const attemptNavigation = (attempts = 0) => {
+      if (attempts > 3) {
+        console.log('❌ Máximo de intentos alcanzado');
+        Alert.alert(
+          'Error de navegación',
+          `No se pudo navegar a ${item.title}. Verifica que la pantalla esté configurada.`,
+          [{ text: 'Aceptar' }]
+        );
+        return;
+      }
+
+      if (navigation && typeof navigation.navigate === 'function') {
+        console.log(`✅ Navegando a ${item.route} (intento ${attempts + 1})`);
+        try {
+          navigation.navigate(item.route);
+        } catch (error) {
+          console.log(`❌ Error en navigate:`, error);
+          setTimeout(() => attemptNavigation(attempts + 1), 100);
+        }
+      } else {
+        console.log(`🔄 Navigator no listo, reintentando... (intento ${attempts + 1})`);
+        setTimeout(() => attemptNavigation(attempts + 1), 100);
+      }
+    };
+
+    attemptNavigation();
   };
 
   const handleLogout = () => {
