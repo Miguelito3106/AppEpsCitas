@@ -38,26 +38,52 @@ const SafeStorage = {
 const authService = {
   login: async (email, password) => {
     try {
+      console.log("Iniciando login con:", email);
+      
       const response = await api.post('/login', {
         email,
         password
       });
       
-      console.log("Respuesta del login:", response.data);
+      console.log("Respuesta completa del login:", response);
+      console.log("Datos recibidos:", response.data);
       
-      if (response.data.access_token) {
+      if (response.data.access_token && response.data.user) {
         // Guardar en storage seguro
         await SafeStorage.setItem('user', JSON.stringify(response.data.user));
         await SafeStorage.setItem('userToken', response.data.access_token);
         
         console.log("Usuario guardado:", response.data.user);
-        console.log("Token guardado");
+        console.log("Token guardado:", response.data.access_token);
+        
+        // RETORNAR LA ESTRUCTURA QUE ESPERA EL FRONTEND
+        return {
+          user: response.data.user,
+          token: response.data.access_token,
+          access_token: response.data.access_token,
+          token_type: response.data.token_type
+        };
+      } else {
+        console.error("Estructura de respuesta incorrecta:", response.data);
+        throw new Error('Estructura de respuesta del servidor incorrecta');
       }
       
-      return response.data;
     } catch (error) {
-      console.error("Error en login:", error.response?.data || error.message);
-      throw error.response?.data || { message: 'Error de conexión' };
+      console.error("Error completo en login:", error);
+      console.error("Error response:", error.response);
+      console.error("Error data:", error.response?.data);
+      
+      let errorMessage = 'Error de conexión';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.errors) {
+        errorMessage = Object.values(error.response.data.errors).flat().join(', ');
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      throw new Error(errorMessage);
     }
   },
 
@@ -68,10 +94,10 @@ const authService = {
         name: userData.name,
         email: userData.email,
         password: userData.password,
-        password_confirmation: userData.password, // IMPORTANTE: agregar este campo
+        password_confirmation: userData.password,
         role: userData.role,
-        telefono: userData.telefono || '0000000000', // Valor por defecto
-        fecha_nacimiento: userData.fecha_nacimiento || '1990-01-01' // Valor por defecto
+        telefono: userData.telefono || '0000000000',
+        fecha_nacimiento: userData.fecha_nacimiento || '1990-01-01'
       };
 
       // Solo agregar especialidad si es médico
@@ -85,9 +111,14 @@ const authService = {
       
       console.log("Respuesta del registro:", response.data);
       
-      if (response.data.access_token) {
+      if (response.data.access_token && response.data.user) {
         await SafeStorage.setItem('user', JSON.stringify(response.data.user));
         await SafeStorage.setItem('userToken', response.data.access_token);
+        
+        return {
+          user: response.data.user,
+          token: response.data.access_token
+        };
       }
       
       return response.data;
@@ -113,7 +144,15 @@ const authService = {
   getCurrentUser: async () => {
     try {
       const userData = await SafeStorage.getItem('user');
-      return userData ? JSON.parse(userData) : null;
+      const token = await SafeStorage.getItem('userToken');
+      
+      if (userData && token) {
+        const user = JSON.parse(userData);
+        console.log("Usuario recuperado:", user);
+        return user;
+      }
+      console.log("No hay usuario en sesión");
+      return null;
     } catch (error) {
       console.error('Error obteniendo usuario:', error);
       return null;
@@ -127,10 +166,22 @@ const authService = {
       console.error('Error obteniendo token:', error);
       return null;
     }
+  },
+
+  // Función para verificar si el usuario está autenticado
+  isAuthenticated: async () => {
+    try {
+      const token = await SafeStorage.getItem('userToken');
+      const user = await SafeStorage.getItem('user');
+      return !!(token && user);
+    } catch (error) {
+      console.error('Error verificando autenticación:', error);
+      return false;
+    }
   }
 };
 
-// Función específica para registro - VERSIÓN CORREGIDA
+// Función específica para registro
 export const registerUser = async (name, email, password, role = 'paciente', especialidad = null, telefono = '0000000000', fecha_nacimiento = '1990-01-01') => {
   try {
     const userData = {
@@ -139,8 +190,8 @@ export const registerUser = async (name, email, password, role = 'paciente', esp
       password,
       role,
       especialidad: role === 'medico' ? especialidad : null,
-      telefono, // Ahora con valor por defecto
-      fecha_nacimiento // Ahora con valor por defecto
+      telefono,
+      fecha_nacimiento
     };
 
     console.log("Datos de registro:", userData);

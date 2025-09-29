@@ -5,8 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert, // Añade Alert
 } from 'react-native';
 import authService from '../../Src/Services/AuthService';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Añade esta importación
 
 export default function PacienteDashboard({ navigation }) {
   const [user, setUser] = useState(null);
@@ -56,6 +58,32 @@ export default function PacienteDashboard({ navigation }) {
     ]);
   };
 
+  // AÑADE ESTA FUNCIÓN PARA CERRAR SESIÓN
+  const handleLogout = () => {
+    Alert.alert(
+      "Cerrar Sesión",
+      "¿Estás seguro de que quieres cerrar sesión?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Cerrar Sesión",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem("userToken");
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Login" }],
+              });
+            } catch (error) {
+              console.error("Error al cerrar sesión:", error);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const handleAgendarCita = () => {
     navigation.navigate('AgendarCita');
   };
@@ -71,10 +99,19 @@ export default function PacienteDashboard({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>Hola, {user.name}</Text>
-        <Text style={styles.subtitle}>Bienvenido a tu portal de paciente</Text>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.welcomeText}>Hola, {user.name}</Text>
+            <Text style={styles.subtitle}>Bienvenido a tu portal de paciente</Text>
+          </View>
+          {/* AÑADE EL BOTÓN DE CERRAR SESIÓN */}
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutText}>Cerrar Sesión</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
+      {/* El resto del código permanece igual */}
       {/* Próxima cita */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Tu Próxima Cita</Text>
@@ -204,6 +241,11 @@ const styles = StyleSheet.create({
     padding: 20, 
     paddingTop: 40 
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
   welcomeText: { 
     fontSize: 24, 
     fontWeight: 'bold', 
@@ -215,6 +257,18 @@ const styles = StyleSheet.create({
     color: 'white', 
     opacity: 0.9 
   },
+  logoutButton: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+  },
+  logoutText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  // ... (el resto de los estilos permanecen igual)
   section: {
     backgroundColor: 'white',
     margin: 10,

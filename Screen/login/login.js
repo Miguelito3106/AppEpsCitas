@@ -25,64 +25,99 @@ export default function Login({ navigation }) {
     try {
       const user = await authService.getCurrentUser();
       if (user) {
-        console.log("Usuario existente encontrado, redirigiendo...");
+        console.log("✅ Usuario existente encontrado, redirigiendo...");
         redirectByRole(user.role);
       }
     } catch (error) {
-      console.log("No hay usuario en sesión");
+      console.log("❌ No hay usuario en sesión");
     }
   };
 
-  // FUNCIÓN CORREGIDA - Usar navigate en lugar de reset
   const redirectByRole = (userRole) => {
-    console.log("Redirigiendo por rol:", userRole);
-
+    console.log("🔄 Redirigiendo por rol:", userRole);
     try {
-      // Todos los roles van a MainTabs que maneja la redirección automática
-      navigation.navigate('MainTabs');
+      // ✅ AGREGAR: Pequeño delay para asegurar que el estado se actualice
+      setTimeout(() => {
+        console.log("🎯 Navegando a MainTabs...");
+        navigation.navigate('MainTabs');
+      }, 300);
     } catch (error) {
-      console.error('Error en redirección:', error);
+      console.error('❌ Error en redirección:', error);
       // Fallback seguro
-      navigation.navigate('MainTabs');
+      setTimeout(() => {
+        navigation.navigate('MainTabs');
+      }, 300);
     }
   };
 
   const handleLogin = async () => {
     try {
       setLoading(true);
+      console.log("🔐 Iniciando proceso de login...");
 
       // Validaciones básicas
       if (!email || !password) {
         Alert.alert("Error", "Por favor, ingresa email y contraseña");
+        setLoading(false);
         return;
       }
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         Alert.alert("Error", "Por favor, ingresa un email válido");
+        setLoading(false);
         return;
       }
 
-      console.log("Intentando login...");
+      console.log("📧 Intentando login con:", email);
       
       const result = await authService.login(email, password);
       
-      if (result.user) {
-        console.log("Login exitoso, usuario:", result.user);
+      console.log("✅ Respuesta del login:", result);
+      
+      if (result && result.user) {
+        console.log("🎉 Login exitoso, usuario:", result.user);
         
-        // Redirigir directamente sin mostrar alerta
-        redirectByRole(result.user.role);
+        // ✅ AGREGAR: Forzar recarga del estado global
+        setTimeout(() => {
+          redirectByRole(result.user.role);
+        }, 500);
+        
       } else {
-        Alert.alert("Error", "Credenciales incorrectas");
+        Alert.alert("Error", "No se recibieron datos del usuario");
       }
     } catch (error) {
-      console.error("Error completo en login:", error);
+      console.error("❌ Error completo en login:", error);
       Alert.alert(
         "Error de login",
         error.message || "Credenciales inválidas o error de conexión"
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ AGREGAR: Botón de debug temporal
+  const handleDebug = async () => {
+    console.log("🐛 DEBUG: Verificando estado actual");
+    const user = await authService.getCurrentUser();
+    console.log("👤 Usuario en storage:", user);
+    console.log("🔑 Token en storage:", await authService.getToken());
+    
+    if (user) {
+      Alert.alert(
+        "Debug Info", 
+        `Usuario: ${user.name}\nEmail: ${user.email}\nRol: ${user.role}\n\n¿Redirigir a MainTabs?`,
+        [
+          { text: "Cancelar", style: "cancel" },
+          { 
+            text: "Redirigir", 
+            onPress: () => redirectByRole(user.role) 
+          }
+        ]
+      );
+    } else {
+      Alert.alert("Debug Info", "No hay usuario logueado");
     }
   };
 
@@ -127,6 +162,14 @@ export default function Login({ navigation }) {
         ) : (
           <Text style={styles.buttonText}>Iniciar Sesión</Text>
         )}
+      </TouchableOpacity>
+
+      {/* ✅ AGREGAR: Botón de debug temporal */}
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: '#28a745', marginTop: 10 }]}
+        onPress={handleDebug}
+      >
+        <Text style={styles.buttonText}>Debug: Verificar Estado</Text>
       </TouchableOpacity>
 
       <Text style={styles.registerText}>
@@ -185,6 +228,7 @@ const styles = StyleSheet.create({
   registerText: {
     fontSize: 14,
     color: "#555",
+    marginTop: 20,
   },
   registerLink: {
     color: "#007BFF",
