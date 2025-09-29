@@ -20,7 +20,7 @@ export default function InicioStack() {
             <Stack.Screen
                 name="inicio"
                 component={Inicio}
-                options={{ title: "Inicio" }}
+                options={{ title: "Dashboard Admin" }}
             />
             <Stack.Screen
                 name="PacientesStack"

@@ -1,51 +1,43 @@
-// Src/Navigation/NavegacionPrincipal.js
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import React from "react"
 import { View, Text } from "react-native"
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
-// IMPORTACIONES CORREGIDAS CON LA ESTRUCTURA ACTUAL
+// IMPORTACIONES CORREGIDAS
 import Inicio from "../../Screen/Inicio/inicio"
 import MedicosDashboard from "../../Screen/Medicos/MedicosDashboard"
 import PacientesDashboard from "../../Screen/Pacientes/PacientesDashboard"
-import PerfilScreen from "../../Screen/Perfil/PerfilScreen"
-import Configuracion from "../../Screen/Configuraciones/Configuraciones"
+
+// IMPORTAR STACKS DESDE LA CARPETA STACK
+import InicioStack from "./Stack/InicioStack"
+import MedicosStack from "./Stack/MedicosStack"
+import PacientesStack from "./Stack/PacientesStack"
+import CitasStack from "./Stack/CitasStack"
+import ConsultoriosStack from "./Stack/ConsultoriosStack"
+import HorariosMedicosStack from "./Stack/HorariosMedicosStack"
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 
-// Componente de fallback si Configuracion no existe
-const ConfiguracionFallback = () => (
+// Componente de fallback
+const FallbackScreen = ({ title }) => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Configuración - Módulo en desarrollo</Text>
-  </View>
-);
-
-// Componente de fallback si PerfilScreen no existe
-const PerfilFallback = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Perfil - Módulo en desarrollo</Text>
+    <Text>{title} - Módulo en desarrollo</Text>
   </View>
 );
 
 // Cargar componentes con manejo de errores
-let ConfiguracionComponent = ConfiguracionFallback;
-let PerfilComponent = PerfilFallback;
+let PerfilComponent = () => <FallbackScreen title="Perfil" />;
 
 try {
-  ConfiguracionComponent = require("../../Screen/Configuraciones/Confuguraciones").default;
-} catch (error) {
-  console.warn("Configuracion no encontrado, usando fallback");
-}
-
-try {
-  PerfilComponent = require("../../Screen/PerfilScreen").default;
+  const perfilModule = require("../../Screen/Perfil/PerfilScreen");
+  PerfilComponent = perfilModule.default || perfilModule;
 } catch (error) {
   console.warn("PerfilScreen no encontrado, usando fallback");
 }
 
-// Tab Navigator para Admin (usa tu inicio.js)
+// Tab Navigator para Admin
 function AdminTabs() {
   return (
     <Tab.Navigator
@@ -55,10 +47,14 @@ function AdminTabs() {
 
           if (route.name === 'Inicio') {
             iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Medicos') {
+            iconName = focused ? 'medical' : 'medical-outline';
+          } else if (route.name === 'Pacientes') {
+            iconName = focused ? 'people' : 'people-outline';
+          } else if (route.name === 'Citas') {
+            iconName = focused ? 'calendar' : 'calendar-outline';
           } else if (route.name === 'Perfil') {
             iconName = focused ? 'person' : 'person-outline';
-          } else if (route.name === 'Configuracion') {
-            iconName = focused ? 'settings' : 'settings-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -70,26 +66,42 @@ function AdminTabs() {
     >
       <Tab.Screen 
         name="Inicio" 
-        component={Inicio} 
+        component={InicioStack}
         options={{ 
           title: 'Dashboard',
           tabBarLabel: 'Inicio'
         }} 
       />
       <Tab.Screen 
-        name="Perfil" 
-        component={PerfilScreen} 
+        name="Medicos" 
+        component={MedicosStack}
         options={{ 
-          title: 'Perfil',
-          tabBarLabel: 'Mi Perfil'
+          title: 'Médicos',
+          tabBarLabel: 'Médicos'
         }} 
       />
       <Tab.Screen 
-        name="Configuracion" 
-        component={Configuracion} 
+        name="Pacientes" 
+        component={PacientesStack}
         options={{ 
-          title: 'Configuración',
-          tabBarLabel: 'Configuración'
+          title: 'Pacientes',
+          tabBarLabel: 'Pacientes'
+        }} 
+      />
+      <Tab.Screen 
+        name="Citas" 
+        component={CitasStack}
+        options={{ 
+          title: 'Citas',
+          tabBarLabel: 'Citas'
+        }} 
+      />
+      <Tab.Screen 
+        name="Perfil" 
+        component={PerfilComponent}
+        options={{ 
+          title: 'Perfil',
+          tabBarLabel: 'Mi Perfil'
         }} 
       />
     </Tab.Navigator>
@@ -104,12 +116,12 @@ function MedicoTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'MedicoDashboard') {
-            iconName = focused ? 'medical' : 'medical-outline';
-          } else if (route.name === 'Perfil') {
+          if (route.name === 'MedicoInicio') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'MedicoCitas') {
+            iconName = focused ? 'calendar' : 'calendar-outline';
+          } else if (route.name === 'MedicoPerfil') {
             iconName = focused ? 'person' : 'person-outline';
-          } else if (route.name === 'Configuracion') {
-            iconName = focused ? 'settings' : 'settings-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -120,27 +132,27 @@ function MedicoTabs() {
       })}
     >
       <Tab.Screen 
-        name="MedicoDashboard" 
-        component={MedicosDashboard} 
+        name="MedicoInicio" 
+        component={MedicosDashboard}
         options={{ 
           title: 'Dashboard Médico',
           tabBarLabel: 'Inicio'
         }} 
       />
       <Tab.Screen 
-        name="Perfil" 
-        component={PerfilScreen} 
+        name="MedicoCitas" 
+        component={CitasStack}
         options={{ 
-          title: 'Perfil Médico',
-          tabBarLabel: 'Mi Perfil'
+          title: 'Mis Citas',
+          tabBarLabel: 'Citas'
         }} 
       />
       <Tab.Screen 
-        name="Configuracion" 
-        component={Configuracion} 
+        name="MedicoPerfil" 
+        component={PerfilComponent}
         options={{ 
-          title: 'Configuración',
-          tabBarLabel: 'Configuración'
+          title: 'Perfil Médico',
+          tabBarLabel: 'Mi Perfil'
         }} 
       />
     </Tab.Navigator>
@@ -155,12 +167,12 @@ function PacienteTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'PacienteDashboard') {
-            iconName = focused ? 'heart' : 'heart-outline';
-          } else if (route.name === 'Perfil') {
+          if (route.name === 'PacienteInicio') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'PacienteCitas') {
+            iconName = focused ? 'calendar' : 'calendar-outline';
+          } else if (route.name === 'PacientePerfil') {
             iconName = focused ? 'person' : 'person-outline';
-          } else if (route.name === 'Configuracion') {
-            iconName = focused ? 'settings' : 'settings-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -171,27 +183,27 @@ function PacienteTabs() {
       })}
     >
       <Tab.Screen 
-        name="PacienteDashboard" 
-        component={PacientesDashboard} 
+        name="PacienteInicio" 
+        component={PacientesDashboard}
         options={{ 
           title: 'Dashboard Paciente',
           tabBarLabel: 'Inicio'
         }} 
       />
       <Tab.Screen 
-        name="Perfil" 
-        component={PerfilScreen} 
+        name="PacienteCitas" 
+        component={CitasStack}
         options={{ 
-          title: 'Perfil Paciente',
-          tabBarLabel: 'Mi Perfil'
+          title: 'Mis Citas',
+          tabBarLabel: 'Citas'
         }} 
       />
       <Tab.Screen 
-        name="Configuracion" 
-        component={Configuracion} 
+        name="PacientePerfil" 
+        component={PerfilComponent}
         options={{ 
-          title: 'Configuración',
-          tabBarLabel: 'Configuración'
+          title: 'Perfil Paciente',
+          tabBarLabel: 'Mi Perfil'
         }} 
       />
     </Tab.Navigator>
@@ -199,14 +211,16 @@ function PacienteTabs() {
 }
 
 export default function NavegacionPrincipal({ user }) {
+  console.log("🎯 NavegacionPrincipal - Usuario:", user ? `${user.name} (${user.role})` : "No user");
+
   // Determinar el componente inicial basado en el rol
   const getInitialComponent = () => {
     if (!user) {
-      console.log("No hay usuario, redirigiendo a pantalla de inicio genérica");
-      return Inicio;
+      console.log("❌ No hay usuario, redirigiendo a Auth");
+      return null;
     }
     
-    console.log("Usuario con rol:", user.role, "redirigiendo a tabs correspondientes");
+    console.log("✅ Usuario con rol:", user.role);
     
     switch (user.role) {
       case 'admin':
@@ -216,12 +230,20 @@ export default function NavegacionPrincipal({ user }) {
       case 'paciente':
         return PacienteTabs;
       default:
-        console.log("Rol no reconocido:", user.role, "usando inicio genérico");
-        return Inicio;
+        console.log("⚠️ Rol no reconocido:", user.role, "usando AdminTabs");
+        return AdminTabs;
     }
   };
 
   const InitialComponent = getInitialComponent();
+
+  if (!InitialComponent) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Error: No se pudo determinar la navegación</Text>
+      </View>
+    );
+  }
 
   return (
     <Stack.Navigator 
@@ -232,44 +254,23 @@ export default function NavegacionPrincipal({ user }) {
       <Stack.Screen 
         name="MainTabs" 
         component={InitialComponent}
-        options={{
-          headerShown: false
-        }}
       />
       
-      {/* Pantallas accesibles para todos los roles (pantallas individuales) */}
+      {/* Stacks accesibles para admin */}
       <Stack.Screen 
-        name="Perfil" 
-        component={PerfilScreen} 
+        name="ConsultoriosStack" 
+        component={ConsultoriosStack}
         options={{ 
           headerShown: true,
-          title: 'Mi Perfil'
+          title: 'Consultorios'
         }} 
       />
       <Stack.Screen 
-        name="Configuracion" 
-        component={Configuracion} 
+        name="HorariosMedicosStack" 
+        component={HorariosMedicosStack}
         options={{ 
           headerShown: true,
-          title: 'Configuración'
-        }} 
-      />
-      
-      {/* Dashboards específicos por rol (para navegación directa) */}
-      <Stack.Screen 
-        name="MedicoDashboard" 
-        component={MedicosDashboard} 
-        options={{ 
-          headerShown: true,
-          title: 'Dashboard Médico'
-        }} 
-      />
-      <Stack.Screen 
-        name="PacienteDashboard" 
-        component={PacientesDashboard} 
-        options={{ 
-          headerShown: true,
-          title: 'Dashboard Paciente'
+          title: 'Horarios Médicos'
         }} 
       />
     </Stack.Navigator>

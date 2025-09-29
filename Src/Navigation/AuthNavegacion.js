@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import Login from "../../Screen/login/login"
 import Register from "../../Screen/login/registrar"
-import NavegacionPrincipal from "./NavegacionPrincipal" // ✅ Ruta correcta
+import NavegacionPrincipal from "./NavegacionPrincipal"
 
 const Stack = createNativeStackNavigator()
 

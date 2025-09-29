@@ -37,12 +37,37 @@ const SafeStorage = {
   }
 };
 
+// ✅ Función para forzar actualización global del estado de usuario
+const updateUserState = async (setUserFunction, newUser = null) => {
+  try {
+    if (newUser) {
+      setUserFunction(newUser);
+      console.log("🔄 Estado de usuario actualizado:", newUser.role);
+    } else {
+      const userData = await SafeStorage.getItem("user");
+      const userToken = await SafeStorage.getItem("userToken");
+      
+      if (userData && userToken) {
+        const parsedUser = JSON.parse(userData);
+        setUserFunction(parsedUser);
+        console.log("🔄 Usuario recuperado del storage:", parsedUser.role);
+      } else {
+        setUserFunction(null);
+        console.log("🔄 No hay usuario en sesión");
+      }
+    }
+  } catch (error) {
+    console.error("❌ Error actualizando estado:", error);
+    setUserFunction(null);
+  }
+};
+
 export default function AppNavegacion() {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   const appState = useRef(AppState.currentState);
 
-  // ✅ Hacer loadUser disponible globalmente
+  // ✅ Función loadUser mejorada
   const loadUser = async () => {
     try {
       console.log("🔄 Cargando usuario desde storage...");
@@ -107,7 +132,7 @@ export default function AppNavegacion() {
     };
   }, []);
 
-  // ✅ AGREGAR: Escuchar cambios en el storage (para web)
+  // ✅ Escuchar cambios en el storage (para web)
   useEffect(() => {
     if (Platform.OS === 'web') {
       const handleStorageChange = () => {
@@ -143,5 +168,5 @@ export default function AppNavegacion() {
   );
 }
 
-// ✅ AGREGAR: Exportar funciones para que otros componentes puedan usarlas
-export { SafeStorage };
+// ✅ Exportar funciones para que otros componentes puedan usarlas
+export { SafeStorage, updateUserState };

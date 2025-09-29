@@ -36,10 +36,13 @@ export default function Login({ navigation }) {
   const redirectByRole = (userRole) => {
     console.log("🔄 Redirigiendo por rol:", userRole);
     try {
-      // ✅ AGREGAR: Pequeño delay para asegurar que el estado se actualice
+      // ✅ Pequeño delay para asegurar que el estado se actualice
       setTimeout(() => {
         console.log("🎯 Navegando a MainTabs...");
-        navigation.navigate('MainTabs');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'MainTabs' }],
+        });
       }, 300);
     } catch (error) {
       console.error('❌ Error en redirección:', error);
@@ -78,10 +81,14 @@ export default function Login({ navigation }) {
       if (result && result.user) {
         console.log("🎉 Login exitoso, usuario:", result.user);
         
-        // ✅ AGREGAR: Forzar recarga del estado global
+        // ✅ REDIRECCIÓN CON TIMING MEJORADO
         setTimeout(() => {
-          redirectByRole(result.user.role);
-        }, 500);
+          console.log("🔄 Redirigiendo a MainTabs...");
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'MainTabs' }],
+          });
+        }, 100);
         
       } else {
         Alert.alert("Error", "No se recibieron datos del usuario");
@@ -97,7 +104,7 @@ export default function Login({ navigation }) {
     }
   };
 
-  // ✅ AGREGAR: Botón de debug temporal
+  // ✅ Botón de debug temporal
   const handleDebug = async () => {
     console.log("🐛 DEBUG: Verificando estado actual");
     const user = await authService.getCurrentUser();
@@ -164,12 +171,12 @@ export default function Login({ navigation }) {
         )}
       </TouchableOpacity>
 
-      {/* ✅ AGREGAR: Botón de debug temporal */}
+      {/* ✅ Botón de debug temporal */}
       <TouchableOpacity
-        style={[styles.button, { backgroundColor: '#28a745', marginTop: 10 }]}
+        style={[styles.debugButton, { marginTop: 10 }]}
         onPress={handleDebug}
       >
-        <Text style={styles.buttonText}>Debug: Verificar Estado</Text>
+        <Text style={styles.debugButtonText}>Debug: Verificar Estado</Text>
       </TouchableOpacity>
 
       <Text style={styles.registerText}>
@@ -223,6 +230,19 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 18,
+    fontWeight: "bold",
+  },
+  debugButton: {
+    backgroundColor: "#28a745",
+    paddingVertical: 12,
+    borderRadius: 10,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  debugButtonText: {
+    color: "#fff",
+    fontSize: 16,
     fontWeight: "bold",
   },
   registerText: {

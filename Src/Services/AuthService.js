@@ -38,40 +38,50 @@ const SafeStorage = {
 const authService = {
   login: async (email, password) => {
     try {
-      console.log("Iniciando login con:", email);
+      console.log("🔐 Iniciando login con:", email);
       
       const response = await api.post('/login', {
         email,
         password
       });
       
-      console.log("Respuesta completa del login:", response);
-      console.log("Datos recibidos:", response.data);
+      console.log("✅ Respuesta completa del login:", response);
+      console.log("📊 Datos recibidos:", response.data);
       
-      if (response.data.access_token && response.data.user) {
+      // MANEJO MEJORADO DE LA RESPUESTA
+      if (response.data.access_token) {
+        const userData = response.data.user || {
+          id: response.data.user?.id,
+          name: response.data.user?.name,
+          email: response.data.user?.email,
+          role: response.data.user?.role,
+          especialidad: response.data.user?.especialidad,
+          telefono: response.data.user?.telefono,
+          fecha_nacimiento: response.data.user?.fecha_nacimiento
+        };
+
         // Guardar en storage seguro
-        await SafeStorage.setItem('user', JSON.stringify(response.data.user));
+        await SafeStorage.setItem('user', JSON.stringify(userData));
         await SafeStorage.setItem('userToken', response.data.access_token);
         
-        console.log("Usuario guardado:", response.data.user);
-        console.log("Token guardado:", response.data.access_token);
+        console.log("💾 Usuario guardado:", userData);
+        console.log("🔑 Token guardado:", response.data.access_token);
         
-        // RETORNAR LA ESTRUCTURA QUE ESPERA EL FRONTEND
         return {
-          user: response.data.user,
+          user: userData,
           token: response.data.access_token,
           access_token: response.data.access_token,
           token_type: response.data.token_type
         };
       } else {
-        console.error("Estructura de respuesta incorrecta:", response.data);
+        console.error("❌ Estructura de respuesta incorrecta:", response.data);
         throw new Error('Estructura de respuesta del servidor incorrecta');
       }
       
     } catch (error) {
-      console.error("Error completo en login:", error);
-      console.error("Error response:", error.response);
-      console.error("Error data:", error.response?.data);
+      console.error("💥 Error completo en login:", error);
+      console.error("📨 Error response:", error.response);
+      console.error("📊 Error data:", error.response?.data);
       
       let errorMessage = 'Error de conexión';
       
@@ -177,6 +187,23 @@ const authService = {
     } catch (error) {
       console.error('Error verificando autenticación:', error);
       return false;
+    }
+  },
+
+  // Función para actualizar datos del usuario localmente
+  updateLocalUser: async (updatedUserData) => {
+    try {
+      const currentUser = await authService.getCurrentUser();
+      if (currentUser) {
+        const mergedUser = { ...currentUser, ...updatedUserData };
+        await SafeStorage.setItem('user', JSON.stringify(mergedUser));
+        console.log("Usuario actualizado localmente:", mergedUser);
+        return mergedUser;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error actualizando usuario local:', error);
+      return null;
     }
   }
 };
