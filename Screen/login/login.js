@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Text,
   TextInput,
@@ -9,41 +9,88 @@ import {
   ActivityIndicator,
   View
 } from "react-native";
-import { loginUser } from "../../Src/Services/AuthService";
+import authService from "../../Src/Services/AuthService";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert("Error", "Por favor completa todos los campos");
-      return;
-    }
+  // Verificar si ya hay un usuario logueado al cargar
+  useEffect(() => {
+    checkExistingUser();
+  }, []);
 
+  const checkExistingUser = async () => {
     try {
-      setLoading(true);
-      const result = await loginUser(email, password);
-
-      if (result.success) {
-        // No mostrar alerta, el cambio de token redirigirá automáticamente
-        console.log("Login exitoso");
-      } else {
-        Alert.alert("Error", result.message || "Credenciales incorrectas");
+      const user = await authService.getCurrentUser();
+      if (user) {
+        console.log("Usuario existente encontrado, redirigiendo...");
+        redirectByRole(user.role);
       }
     } catch (error) {
-      console.error("Error inesperado en login:", error);
-      Alert.alert("Error", "Ocurrió un error inesperado al iniciar sesión.");
+      console.log("No hay usuario en sesión");
+    }
+  };
+
+  // FUNCIÓN CORREGIDA - Usar navigate en lugar de reset
+  const redirectByRole = (userRole) => {
+    console.log("Redirigiendo por rol:", userRole);
+
+    try {
+      // Todos los roles van a MainTabs que maneja la redirección automática
+      navigation.navigate('MainTabs');
+    } catch (error) {
+      console.error('Error en redirección:', error);
+      // Fallback seguro
+      navigation.navigate('MainTabs');
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+
+      // Validaciones básicas
+      if (!email || !password) {
+        Alert.alert("Error", "Por favor, ingresa email y contraseña");
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        Alert.alert("Error", "Por favor, ingresa un email válido");
+        return;
+      }
+
+      console.log("Intentando login...");
+      
+      const result = await authService.login(email, password);
+      
+      if (result.user) {
+        console.log("Login exitoso, usuario:", result.user);
+        
+        // Redirigir directamente sin mostrar alerta
+        redirectByRole(result.user.role);
+      } else {
+        Alert.alert("Error", "Credenciales incorrectas");
+      }
+    } catch (error) {
+      console.error("Error completo en login:", error);
+      Alert.alert(
+        "Error de login",
+        error.message || "Credenciales inválidas o error de conexión"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: "#f0f0f0" }}
+    <ScrollView 
+      style={{ flex: 1, backgroundColor: "#f0f0f0" }} 
       contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
     >
       <Text style={styles.title}>Iniciar Sesión</Text>
 
@@ -52,9 +99,10 @@ export default function Login({ navigation }) {
         placeholder="Correo electrónico"
         placeholderTextColor="#999"
         keyboardType="email-address"
-        autoCapitalize="none"
         value={email}
         onChangeText={setEmail}
+        autoCapitalize="none"
+        autoComplete="email"
         editable={!loading}
       />
 
@@ -65,6 +113,7 @@ export default function Login({ navigation }) {
         secureTextEntry
         value={password}
         onChangeText={setPassword}
+        autoComplete="password"
         editable={!loading}
       />
 
@@ -76,26 +125,19 @@ export default function Login({ navigation }) {
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>Iniciar sesión</Text>
+          <Text style={styles.buttonText}>Iniciar Sesión</Text>
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={{ marginTop: 20 }}
-        onPress={() => navigation.navigate("Register")}
-        disabled={loading}
-      >
-        <Text style={styles.registerText}>
-          ¿No tienes cuenta? Regístrate
+      <Text style={styles.registerText}>
+        ¿No tienes cuenta?{" "}
+        <Text 
+          style={styles.registerLink} 
+          onPress={() => !loading && navigation.navigate("Register")}
+        >
+          Regístrate
         </Text>
-      </TouchableOpacity>
-
-      {/* Información de debug */}
-      <View style={styles.debugInfo}>
-        <Text style={styles.debugInfoText}>
-          Para testing: admin@eps.com / 123456
-        </Text>
-      </View>
+      </Text>
     </ScrollView>
   );
 }
@@ -110,7 +152,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 40,
+    marginBottom: 30,
     color: "#333",
   },
   input: {
@@ -118,7 +160,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 15,
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 15,
     fontSize: 16,
     borderWidth: 1,
     borderColor: "#ddd",
@@ -130,9 +172,10 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     marginBottom: 20,
+    marginTop: 10,
   },
   buttonDisabled: {
-    backgroundColor: "#ccc",
+    opacity: 0.7,
   },
   buttonText: {
     color: "#fff",
@@ -142,17 +185,9 @@ const styles = StyleSheet.create({
   registerText: {
     fontSize: 14,
     color: "#555",
-    textAlign: "center",
   },
-  debugInfo: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: "#e9ecef",
-    borderRadius: 5,
-  },
-  debugInfoText: {
-    fontSize: 12,
-    color: "#666",
-    textAlign: "center",
+  registerLink: {
+    color: "#007BFF",
+    fontWeight: "bold",
   },
 });

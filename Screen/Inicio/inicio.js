@@ -94,8 +94,8 @@ export default function Inicio({ navigation }) {
       <View style={styles.container}>
         {/* Sidebar */}
         <View style={styles.sidebar}>
-          <Text style={styles.sidebarTitle}>Sistema Médico</Text>
-          <Text style={styles.sidebarSubtitle}>Gestión de citas médicas</Text>
+          <Text style={styles.sidebarTitle}>Administrador</Text>
+          <Text style={styles.sidebarSubtitle}>Gestión de citas médicas </Text>
           
           <View style={styles.menuContainer}>
             {menuItems.map((item, index) => (
